@@ -1,0 +1,87 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      upload_to_nexus:
+        description: "Upload to Nexus Mods (requires NEXUSMODS_API_KEY secret and NEXUSMODS_FILE_GROUP_ID variable)"
+        type: boolean
+        default: false
+      version:
+        description: "Version to upload to Nexus Mods, without 'v' prefix (e.g. 1.0.0) — required when upload_to_nexus is true"
+        type: string
+        required: false
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Install CMake and Ninja
+        uses: lukka/get-cmake@latest
+
+      - name: Restore vcpkg binary cache
+        uses: actions/cache@v5
+        with:
+          path: C:\vcpkg-cache
+          key: vcpkg-${{ hashFiles('vcpkg.json', 'cmake/triplets/**', 'cmake/ports/**') }}
+          restore-keys: vcpkg-
+
+      - name: Setup vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgDirectory: ${{ github.workspace }}/lib/vcpkg
+        env:
+          VCPKG_BINARY_SOURCES: "clear;files,C:\\vcpkg-cache,readwrite"
+
+      - name: Configure and Build
+        uses: lukka/run-cmake@v10
+        with:
+          configurePreset: release-windows
+          buildPreset: release-windows
+        env:
+          VCPKG_BINARY_SOURCES: "clear;files,C:\\vcpkg-cache,readwrite"
+
+      - name: Create GitHub Release
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
+        id: gh_release
+        uses: softprops/action-gh-release@v3
+        with:
+          files: |
+            build/msvc/Release/*.dll
+            build/msvc/Release/*.pdb
+          generate_release_notes: true
+
+      - name: Package for Nexus Mods
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.upload_to_nexus }}
+        shell: pwsh
+        run: |
+          $version = "${{ inputs.version }}"
+          if (-not $version) { throw "The 'version' input is required when upload_to_nexus is true (e.g. 1.0.0)" }
+          $dlls = @(Get-Item build/msvc/Release/*.dll)
+          if ($dlls.Count -ne 1) { throw "Expected exactly 1 DLL, found $($dlls.Count)" }
+          $name = "$($dlls[0].BaseName)-$version.zip"
+          Compress-Archive -Path $dlls[0] -DestinationPath $name
+          echo "NEXUS_ZIP=$name" >> $env:GITHUB_ENV
+          echo "NEXUS_VERSION=$version" >> $env:GITHUB_ENV
+
+      - name: Upload to Nexus Mods
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.upload_to_nexus }}
+        uses: Nexus-Mods/upload-action@v1.0.0-beta.5
+        with:
+          api_key: ${{ secrets.NEXUSMODS_API_KEY }}
+          file_group_id: ${{ vars.NEXUSMODS_FILE_GROUP_ID }}
+          filename: ${{ env.NEXUS_ZIP }}
+          version: ${{ env.NEXUS_VERSION }}
+          archive_existing_file: true

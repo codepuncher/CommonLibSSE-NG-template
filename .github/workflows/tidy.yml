@@ -1,0 +1,62 @@
+name: Tidy
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/tidy.yml"
+      - 'src/**'
+      - '.clang-tidy'
+      - 'CMakeLists.txt'
+      - 'cmake/**'
+      - 'vcpkg.json'
+
+concurrency:
+  group: tidy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  clang-tidy:
+    runs-on: windows-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - uses: ilammy/msvc-dev-cmd@v1
+
+      - uses: KyleMayes/install-llvm-action@v2
+        with:
+          version: "19"
+
+      - uses: lukka/get-cmake@latest
+
+      - name: Restore vcpkg binary cache
+        uses: actions/cache@v5
+        with:
+          path: C:\vcpkg-cache
+          key: vcpkg-tidy-${{ hashFiles('vcpkg.json', 'cmake/triplets/**', 'cmake/ports/**') }}
+          restore-keys: vcpkg-tidy-
+
+      - uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgDirectory: ${{ github.workspace }}/lib/vcpkg
+        env:
+          VCPKG_BINARY_SOURCES: "clear;files,C:\\vcpkg-cache,readwrite"
+
+      - name: Configure
+        uses: lukka/run-cmake@v10
+        with:
+          configurePreset: tidy-windows
+        env:
+          VCPKG_BINARY_SOURCES: "clear;files,C:\\vcpkg-cache,readwrite"
+
+      - name: Run clang-tidy
+        shell: pwsh
+        run: |
+          $files = Get-ChildItem -Path src -Include *.cpp -Recurse |
+            Select-Object -ExpandProperty FullName
+          clang-tidy.exe -p build/tidy $files
