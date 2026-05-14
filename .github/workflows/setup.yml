@@ -1,0 +1,60 @@
+name: Template Setup
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/template-setup-pending']
+
+jobs:
+  setup:
+    if: github.event.repository.is_template == false && github.repository != 'codepuncher/CommonLibSSE-NG-template'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Derive mod name from repo name
+        id: names
+        run: |
+          REPO="${{ github.event.repository.name }}"
+          # kebab-case or snake_case → PascalCase
+          MOD_NAME=$(echo "$REPO" | sed -E 's/(^|[-_])([a-z])/\U\2/g')
+          MOD_NAME_LOWER=$(echo "$MOD_NAME" | tr '[:upper:]' '[:lower:]')
+          AUTHOR="${{ github.repository_owner }}"
+          echo "mod_name=${MOD_NAME}"       >> "$GITHUB_OUTPUT"
+          echo "mod_name_lower=${MOD_NAME_LOWER}" >> "$GITHUB_OUTPUT"
+          echo "author=${AUTHOR}"           >> "$GITHUB_OUTPUT"
+
+      - name: Replace placeholders
+        env:
+          MOD_NAME: ${{ steps.names.outputs.mod_name }}
+          MOD_NAME_LOWER: ${{ steps.names.outputs.mod_name_lower }}
+          AUTHOR: ${{ steps.names.outputs.author }}
+        run: |
+          FILES=(
+            CMakeLists.txt
+            src/Plugin.cpp
+            vcpkg.json
+            README.md
+          )
+          for file in "${FILES[@]}"; do
+            [[ -f "$file" ]] || continue
+            sed -i \
+              -e "s|examplemod|${MOD_NAME_LOWER}|g" \
+              -e "s|ExampleMod|${MOD_NAME}|g" \
+              -e "s|Author|${AUTHOR}|g" \
+              "$file"
+          done
+
+      - name: Remove setup workflow and sentinel
+        run: |
+          git rm .github/workflows/setup.yml .github/template-setup-pending
+
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "chore: initialise project as ${{ steps.names.outputs.mod_name }}"
+          git push
