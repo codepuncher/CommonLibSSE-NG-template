@@ -38,7 +38,7 @@ pre-commit:
       glob:
         - "src/*.cpp"
         - "src/**/*.cpp"
-      run: clang-tidy -p build/release-linux {staged_files}
+      run: clang-tidy -p build/release-linux --warnings-as-errors='*' {staged_files}
       fail_text: "clang-tidy reported issues (run ./scripts/build.sh first if compile_commands.json is missing)"
     shellcheck:
       glob: "scripts/*.sh"

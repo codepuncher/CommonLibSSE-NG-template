@@ -175,6 +175,7 @@ Prerequisites:
 
 - `go install github.com/evilmartians/lefthook@latest`
 - `clang-format` (part of LLVM — already required for development)
+- `clang-tidy` (part of LLVM — already required for development)
 - `cmake-format` (`sudo pacman -S cmake-format` on Arch/CachyOS; `pip install cmakelang` elsewhere)
 - `shellcheck` (`sudo pacman -S shellcheck` on Arch/CachyOS)
 
