@@ -1,0 +1,2 @@
+This file triggers the one-time template setup workflow on first push.
+It is automatically deleted after setup completes.
