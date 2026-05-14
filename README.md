@@ -53,7 +53,7 @@ cd your-mod
 ```bash
 ./scripts/init.sh
 # or:
-./scripts/init.sh "YourAuthorName" "YourModName"
+./scripts/init.sh "AuthorName" "ModName"
 ```
 
 **Windows (PowerShell)**:
@@ -61,7 +61,7 @@ cd your-mod
 ```powershell
 .\scripts\init.ps1
 # or:
-.\scripts\init.ps1 "YourAuthorName" "YourModName"
+.\scripts\init.ps1 "AuthorName" "ModName"
 ```
 
 This will:
@@ -146,13 +146,13 @@ When loaded by Skyrim the plugin:
 
 | Workflow | Trigger | What it does |
 |---|---|---|
-| `setup.yml` | First push to `main` (sentinel file present) | Renames placeholders using repo name, then self-deletes |
+| `setup.yml` | First push in a repo created from this template | Renames placeholders using the repo name, then self-deletes |
 | `build.yml` | PRs to `main` touching source/cmake/vcpkg | Builds on Windows (MSVC + vcpkg), uploads DLL + PDB |
 | `release.yml` | Push of a `v*` tag (or manual `workflow_dispatch`) | Same build, publishes a GitHub Release with DLL + PDB; opt-in Nexus Mods upload via dispatch input |
 | `format.yml` | PRs touching `src/**` or `.clang-format` | Checks C++ formatting with clang-format |
 | `tidy.yml` | PRs touching `src/**`, cmake, or `.clang-tidy` | Runs clang-tidy static analysis on Windows (MSVC headers) |
 | `lint.yml` | PRs touching `scripts/` | Runs shellcheck on shell scripts |
-| `pr-title.yml` | PR opened/edited/reopened | Checks PR title is a conventional commit (`feat`, `fix`, `docs`, `chore`, `refactor`) |
+| `pr-title.yml` | PR opened/edited/reopened | Checks PR title follows Conventional Commits (`feat`, `fix`, `chore`, `docs`, `refactor`, `ci`, `build`, `perf`, `test`, `style`, `revert`) |
 
 ### Nexus Mods Upload
 
@@ -175,7 +175,8 @@ Prerequisites:
 
 - `go install github.com/evilmartians/lefthook@latest`
 - `clang-format` (part of LLVM — already required for development)
-- `pip install cmakelang` (for cmake-format)
+- `cmake-format` (`sudo pacman -S cmake-format` on Arch/CachyOS; `pip install cmakelang` elsewhere)
+- `shellcheck` (`sudo pacman -S shellcheck` on Arch/CachyOS)
 
 Run `lefthook install` to register the hooks.
 
