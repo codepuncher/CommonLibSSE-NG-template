@@ -34,6 +34,12 @@ pre-commit:
     check-eof-newline:
       run: for f in {staged_files}; do [ -s "$f" ] && [ "$(tail -c1 "$f" | wc -l)" -eq 0 ] && echo "$f missing newline at EOF" && exit 1; done; exit 0
       fail_text: "File(s) missing newline at end of file"
+    clang-tidy:
+      glob:
+        - "src/*.cpp"
+        - "src/**/*.cpp"
+      run: clang-tidy -p build/release-linux {staged_files}
+      fail_text: "clang-tidy reported issues (run ./scripts/build.sh first if compile_commands.json is missing)"
     shellcheck:
       glob: "scripts/*.sh"
       run: shellcheck {staged_files}
