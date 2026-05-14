@@ -152,7 +152,7 @@ When loaded by Skyrim the plugin:
 | `format.yml` | PRs touching `src/**` or `.clang-format` | Checks C++ formatting with clang-format |
 | `tidy.yml` | PRs touching `src/**`, cmake, or `.clang-tidy` | Runs clang-tidy static analysis on Windows (MSVC headers) |
 | `lint.yml` | PRs touching `scripts/` | Runs shellcheck on shell scripts |
-| `pr-title.yml` | PR opened/edited/reopened | Checks PR title follows Conventional Commits (`feat`, `fix`, `chore`, `docs`, `refactor`, `ci`, `build`, `perf`, `test`, `style`, `revert`) |
+| `pr-title.yml` | PR opened/edited/reopened/synchronize | Checks PR title follows Conventional Commits (`feat`, `fix`, `chore`, `docs`, `refactor`, `ci`, `build`, `perf`, `test`, `style`, `revert`) |
 
 ### Nexus Mods Upload
 
