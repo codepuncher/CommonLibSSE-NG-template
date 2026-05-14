@@ -32,23 +32,30 @@ SKSEPluginLoad(const SKSE::LoadInterface* a_skse)
 	SetupLog();
 
 	const auto* plugin = SKSE::PluginDeclaration::GetSingleton();
+	if (!plugin) {
+		logger::error("Failed to get plugin declaration");
+		return false;
+	}
 	logger::info("{} v{} loaded", plugin->GetName(), plugin->GetVersion());
 
 	const auto* messaging = SKSE::GetMessagingInterface();
-	if (messaging == nullptr) {
+	if (!messaging) {
 		logger::error("Failed to get SKSE messaging interface");
 		return false;
 	}
 
-	messaging->RegisterListener([](SKSE::MessagingInterface::Message* a_msg) {
-		switch (a_msg->type) {
-		case SKSE::MessagingInterface::kDataLoaded:
-			OnDataLoaded();
-			break;
-		default:
-			break;
-		}
-	});
+	if (!messaging->RegisterListener([](SKSE::MessagingInterface::Message* a_msg) {
+			switch (a_msg->type) {
+			case SKSE::MessagingInterface::kDataLoaded:
+				OnDataLoaded();
+				break;
+			default:
+				break;
+			}
+		})) {
+		logger::error("Failed to register messaging listener");
+		return false;
+	}
 
 	return true;
 }
