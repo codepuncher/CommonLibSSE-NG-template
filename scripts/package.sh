@@ -64,13 +64,13 @@ if [[ -z "$build_dir" ]]; then
     build_dir="build/release-linux"
 fi
 
-project_name=$(grep -oP 'PROPERTIES OUTPUT_NAME \K\w+' CMakeLists.txt || true)
+project_name=$(grep -oP 'PROPERTIES OUTPUT_NAME \K[\w-]+' CMakeLists.txt || true)
 if [[ -z "$project_name" ]]; then
     echo "Error: could not determine DLL name from CMakeLists.txt (OUTPUT_NAME not found)"
     exit 1
 fi
 
-mapfile -t dlls < <(find "$build_dir" -type f -name "${project_name}.dll")
+mapfile -t dlls < <(find "$build_dir" -maxdepth 2 -type f -name "${project_name}.dll")
 if [[ ${#dlls[@]} -ne 1 ]]; then
     echo "Error: expected exactly 1 DLL in ${build_dir}, found ${#dlls[@]}"
     exit 1
