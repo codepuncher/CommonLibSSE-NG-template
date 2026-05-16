@@ -29,10 +29,10 @@ pre-commit:
       run: cmake-format -i {staged_files}
       stage_fixed: true
     check-trailing-whitespace:
-      run: grep -Prn '\s+$' {staged_files} && exit 1 || exit 0
+      run: if grep -IPrn '\s+$' {staged_files}; then exit 1; fi; exit 0
       fail_text: "Trailing whitespace found"
     check-eof-newline:
-      run: for f in {staged_files}; do [ -s "$f" ] && [ "$(tail -c1 "$f" | wc -l)" -eq 0 ] && echo "$f missing newline at EOF" && exit 1; done; exit 0
+      run: for f in {staged_files}; do grep -qI '' "$f" && [ -s "$f" ] && [ "$(tail -c1 "$f" | wc -l)" -eq 0 ] && echo "$f missing newline at EOF" && exit 1; done; exit 0
       fail_text: "File(s) missing newline at end of file"
     clang-tidy:
       glob:
