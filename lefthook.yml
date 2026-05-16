@@ -32,7 +32,7 @@ pre-commit:
       run: if grep -IPrn '\s+$' {staged_files}; then exit 1; fi; exit 0
       fail_text: "Trailing whitespace found"
     check-eof-newline:
-      run: for f in {staged_files}; do file "$f" | grep -q text && [ -s "$f" ] && [ "$(tail -c1 "$f" | wc -l)" -eq 0 ] && echo "$f missing newline at EOF" && exit 1; done; exit 0
+      run: for f in {staged_files}; do grep -qI '' "$f" && [ -s "$f" ] && [ "$(tail -c1 "$f" | wc -l)" -eq 0 ] && echo "$f missing newline at EOF" && exit 1; done; exit 0
       fail_text: "File(s) missing newline at end of file"
     clang-tidy:
       glob:

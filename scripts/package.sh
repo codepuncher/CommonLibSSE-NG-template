@@ -20,9 +20,15 @@ while [[ $# -gt 0 ]]; do
                 exit 1
             fi
             build_dir="$2"; shift 2 ;;
+        --*) echo "Error: unknown option: $1"; exit 1 ;;
         *) positional+=("$1"); shift ;;
     esac
 done
+
+if [[ ${#positional[@]} -gt 1 ]]; then
+    echo "Error: unexpected arguments: ${positional[*]:1}"
+    exit 1
+fi
 
 if [[ ! -f "CMakeLists.txt" ]]; then
     echo "Error: must be run from the project root (e.g. ./scripts/package.sh)"
@@ -39,7 +45,7 @@ if [[ ${#positional[@]} -gt 0 ]]; then
 elif git_tag=$(git describe --tags --exact-match 2>/dev/null); then
     version="${git_tag#v}"
 else
-    version=$(grep -oP '^\s+VERSION\s+\K[0-9]+\.[0-9]+\.[0-9]+' CMakeLists.txt | head -1)
+    version=$(grep -oP '^\s+VERSION\s+\K[0-9]+\.[0-9]+\.[0-9]+' CMakeLists.txt | head -1 || true)
     if [[ -z "$version" ]]; then
         echo "Error: could not determine version from CMakeLists.txt"
         exit 1
@@ -58,13 +64,13 @@ if [[ -z "$build_dir" ]]; then
     build_dir="build/release-linux"
 fi
 
-project_name=$(grep -oP 'PROPERTIES OUTPUT_NAME \K\w+' CMakeLists.txt)
+project_name=$(grep -oP 'PROPERTIES OUTPUT_NAME \K\w+' CMakeLists.txt || true)
 if [[ -z "$project_name" ]]; then
     echo "Error: could not determine DLL name from CMakeLists.txt (OUTPUT_NAME not found)"
     exit 1
 fi
 
-mapfile -t dlls < <(find "$build_dir" -maxdepth 1 -type f -name "${project_name}.dll")
+mapfile -t dlls < <(find "$build_dir" -type f -name "${project_name}.dll")
 if [[ ${#dlls[@]} -ne 1 ]]; then
     echo "Error: expected exactly 1 DLL in ${build_dir}, found ${#dlls[@]}"
     exit 1
