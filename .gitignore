@@ -2,6 +2,9 @@
 build/
 vcpkg_installed/
 
+# Packaged releases
+dist/
+
 # xwin cache
 .xwin-cache/
 
