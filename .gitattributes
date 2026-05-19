@@ -4,3 +4,4 @@
 # Windows-specific files checked in as-is
 *.bat -text
 *.ps1 -text
+*.png binary

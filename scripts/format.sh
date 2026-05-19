@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if command -v clang-format-19 &>/dev/null; then
-    FMT=clang-format-19
+if command -v clang-format-22 &>/dev/null; then
+    FMT=clang-format-22
 else
-    echo "warning: clang-format-19 not found, using $(clang-format --version); CI uses v19" >&2
+    echo "warning: clang-format-22 not found, using $(clang-format --version); CI uses v22" >&2
     FMT=clang-format
 fi
 
