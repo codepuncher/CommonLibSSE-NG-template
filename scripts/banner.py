@@ -3,6 +3,7 @@
 banner.py — Generate docs/assets/banner.png.
 
 Requires: Pillow  (python-pillow / pip install Pillow)
+          numpy   (python-numpy  / pip install numpy)
 Font:      Cinzel Regular — downloaded automatically from Google Fonts on first
            run and cached in $XDG_CACHE_HOME/<project>/ (default: ~/.cache/<project>/).
 
@@ -26,6 +27,8 @@ import hashlib
 import os
 import urllib.request
 from pathlib import Path
+
+import numpy as np
 
 from PIL import Image, ImageDraw, ImageFont
 
@@ -90,18 +93,12 @@ def centered_x(draw: ImageDraw.ImageDraw, text: str, font: ImageFont.FreeTypeFon
 
 def radial_vignette(img: Image.Image) -> Image.Image:
     """Blend a dark radial vignette over the image."""
-    cx, cy   = img.width / 2, img.height / 2
+    w, h     = img.size
+    y_n, x_n = np.ogrid[-1:1:h * 1j, -1:1:w * 1j]
+    r        = np.sqrt(x_n ** 2 + y_n ** 2) / 1.6
+    alpha    = (1 - np.clip(r, 0, 1) ** 1.4) * 220
+    mask     = Image.fromarray(alpha.astype(np.uint8), mode="L")
     vignette = Image.new("RGB", img.size, BG_DARK)
-    mask     = Image.new("L",   img.size, 0)
-    mask_draw = ImageDraw.Draw(mask)
-    steps = 80
-    for i in range(steps, 0, -1):
-        t     = i / steps
-        alpha = int((1 - t ** 1.4) * 220)
-        rx    = int(cx * t * 1.6)
-        ry    = int(cy * t * 1.6)
-        box   = [int(cx - rx), int(cy - ry), int(cx + rx), int(cy + ry)]
-        mask_draw.ellipse(box, fill=alpha)
     return Image.composite(img, vignette, mask)
 
 # ---------------------------------------------------------------------------
@@ -142,7 +139,16 @@ def main() -> None:
     W, H = args.width, args.height
     base = args.font_size
 
-    title_font    = ImageFont.truetype(str(font_path), base)
+    # Shrink font until title fits within the canvas (leaving DIVIDER_X_PAD on each side).
+    max_title_w = W - DIVIDER_X_PAD * 2
+    _tmp_draw   = ImageDraw.Draw(Image.new("RGB", (1, 1)))
+    while base >= 30:
+        title_font = ImageFont.truetype(str(font_path), base)
+        _bb        = _tmp_draw.textbbox((0, 0), args.title, font=title_font)
+        if (_bb[2] - _bb[0]) <= max_title_w:
+            break
+        base -= 2
+
     subtitle_font = ImageFont.truetype(str(font_path), base // 3)
     tags_font     = ImageFont.truetype(str(font_path), base // 5)
 
@@ -175,6 +181,12 @@ def main() -> None:
     subtitle_y = divider_y + tail_extra + SUB_PAD
     tags_y     = subtitle_y + sub_h + TAGS_PAD
 
+    # Vignette applied to background before text
+    if not args.no_vignette:
+        img = radial_vignette(img)
+
+    draw = ImageDraw.Draw(img)
+
     # Title
     x = centered_x(draw, args.title, title_font, W)
     draw.text((x, title_y), args.title, font=title_font, fill=GOLD)
@@ -193,10 +205,6 @@ def main() -> None:
     # Tags
     x = centered_x(draw, args.tags, tags_font, W)
     draw.text((x, tags_y), args.tags, font=tags_font, fill=GOLD_DIM)
-
-    # Vignette
-    if not args.no_vignette:
-        img = radial_vignette(img)
 
     out = Path(args.output)
     out.parent.mkdir(parents=True, exist_ok=True)
