@@ -100,9 +100,9 @@ jobs:
           NOTES: ${{ steps.cliff.outputs.content }}
         run: |
           DELIM="$(dd if=/dev/urandom bs=15 count=1 status=none | base64)"
-          echo "notes<<$DELIM" >> "$GITHUB_OUTPUT"
-          echo "${NOTES//## /}" >> "$GITHUB_OUTPUT"
-          echo "$DELIM" >> "$GITHUB_OUTPUT"
+          printf 'notes<<%s\n' "$DELIM" >> "$GITHUB_OUTPUT"
+          printf '%s\n' "${NOTES//## /}" >> "$GITHUB_OUTPUT"
+          printf '%s\n' "$DELIM" >> "$GITHUB_OUTPUT"
 
       - name: Upload to Nexus Mods
         uses: Nexus-Mods/upload-action@v1.0.0-beta.5
