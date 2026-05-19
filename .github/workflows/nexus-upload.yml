@@ -101,7 +101,7 @@ jobs:
         run: |
           DELIM="$(dd if=/dev/urandom bs=15 count=1 status=none | base64)"
           echo "notes<<$DELIM" >> "$GITHUB_OUTPUT"
-          echo "${NOTES//"## "/}" >> "$GITHUB_OUTPUT"
+          echo "${NOTES//## /}" >> "$GITHUB_OUTPUT"
           echo "$DELIM" >> "$GITHUB_OUTPUT"
 
       - name: Upload to Nexus Mods
