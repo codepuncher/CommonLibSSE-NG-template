@@ -22,6 +22,8 @@ permissions: {}
 jobs:
   clang-format:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v6
 
@@ -33,6 +35,9 @@ jobs:
   build:
     needs: clang-format
     runs-on: windows-latest
+    permissions:
+      contents: read
+      actions: write
 
     steps:
       - name: Checkout
@@ -76,6 +81,9 @@ jobs:
   clang-tidy:
     needs: build
     runs-on: windows-latest
+    permissions:
+      contents: read
+      actions: write
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
