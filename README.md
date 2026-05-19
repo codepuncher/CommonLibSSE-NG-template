@@ -147,16 +147,15 @@ When loaded by Skyrim the plugin:
 | Workflow | Trigger | What it does |
 |---|---|---|
 | `setup.yml` | First push in a repo created from this template | Renames placeholders using the repo name, then self-deletes |
-| `build.yml` | PRs to `main` touching source/cmake/vcpkg | Builds on Windows (MSVC + vcpkg), uploads DLL + PDB |
-| `release.yml` | Push of a `v*` tag (or manual `workflow_dispatch`) | Same build, publishes a GitHub Release with DLL + PDB; opt-in Nexus Mods upload via dispatch input |
-| `format.yml` | PRs touching `src/**` or `.clang-format` | Checks C++ formatting with clang-format |
-| `tidy.yml` | PRs touching `src/**`, cmake, or `.clang-tidy` | Runs clang-tidy static analysis on Windows (MSVC headers) |
+| `ci.yml` | PRs to `main` touching source/cmake/vcpkg | `clang-format` (ubuntu) → `build` → `clang-tidy` (windows, sequential) |
+| `release.yml` | Push of a `v*` tag | Builds, packages via `scripts/package.sh`, publishes a GitHub Release with zip + PDB |
+| `nexus-upload.yml` | Release published or manual `workflow_dispatch` | Downloads release zip, generates cliff release notes, uploads to Nexus Mods |
 | `lint.yml` | PRs touching `scripts/` | Runs shellcheck on shell scripts |
 | `pr-title.yml` | PR opened/edited/reopened/synchronize | Checks PR title follows Conventional Commits (`feat`, `fix`, `chore`, `docs`, `refactor`, `ci`, `build`, `perf`, `test`, `style`, `revert`) |
 
 ### Nexus Mods Upload
 
-`release.yml` includes an optional Nexus Mods upload step, triggered only when running via **workflow_dispatch** with `upload_to_nexus: true`.
+`nexus-upload.yml` triggers automatically when a GitHub Release is published, or can be run manually via **workflow_dispatch** with a version input.
 
 **Prerequisites (one-time setup):**
 1. Upload your first file manually via the [Nexus Mods web UI](https://www.nexusmods.com) — this creates the file group.
@@ -164,8 +163,6 @@ When loaded by Skyrim the plugin:
 3. Add to your repository:
    - **Secret** `NEXUSMODS_API_KEY` — your Nexus Mods API key (Settings → Secrets → Actions)
    - **Variable** `NEXUSMODS_FILE_GROUP_ID` — the file group ID (Settings → Variables → Actions)
-
-> **Note:** The Nexus Mods v3 API is currently in evaluation. The upload step is opt-in and will be skipped on normal tag pushes.
 
 ---
 
