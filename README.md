@@ -147,7 +147,7 @@ When loaded by Skyrim the plugin:
 | Workflow | Trigger | What it does |
 |---|---|---|
 | `setup.yml` | First push in a repo created from this template | Renames placeholders using the repo name, then self-deletes |
-| `ci.yml` | PRs to `main` touching source/cmake/vcpkg | Runs `clang-format → build → clang-tidy` in sequence on Windows (MSVC + vcpkg) |
+| `ci.yml` | PRs to `main` touching source/cmake/vcpkg | `clang-format` (ubuntu) → `build` → `clang-tidy` (windows, sequential) |
 | `release.yml` | Push of a `v*` tag | Builds, packages via `scripts/package.sh`, publishes a GitHub Release with zip + PDB |
 | `nexus-upload.yml` | Release published or manual `workflow_dispatch` | Downloads release zip, generates cliff release notes, uploads to Nexus Mods |
 | `lint.yml` | PRs touching `scripts/` | Runs shellcheck on shell scripts |
