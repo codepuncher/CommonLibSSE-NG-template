@@ -168,6 +168,18 @@ cmake --build --preset release-windows
 
 The DLL lands in `build/msvc/Release/ExampleMod.dll`.
 
+#### 5. Running tests
+
+Unit tests run as a native Windows executable via the `test-windows` preset:
+
+```bash
+cmake --preset test-windows
+cmake --build --preset test-windows
+ctest --preset test-windows
+```
+
+Tests live in `test/` and use [Catch2](https://github.com/catchorg/Catch2). Only pure-logic code (no RE::/SKSE:: APIs) can be tested this way. See `src/Utils.h` and `test/ExampleTests.cpp` for the pattern.
+
 ---
 
 ### Git Hooks (Lefthook)
@@ -219,7 +231,7 @@ git commit -m "chore: update CommonLibSSE-NG submodule"
 | Workflow | Trigger | What it does |
 |---|---|---|
 | `setup.yml` | First push in a repo created from this template | Renames placeholders using the repo name, then self-deletes |
-| `ci.yml` | PRs to `main` touching source/cmake/vcpkg | `clang-format` (ubuntu) → `build` → `clang-tidy` (windows, sequential) |
+| `ci.yml` | PRs to `main` touching `src/`, `test/`, `cmake/`, `vcpkg.json`, `CMakeLists.txt`, `CMakePresets.json` | `clang-format` (ubuntu) → `test` + `build` (windows, parallel) → `clang-tidy` (windows) |
 | `release.yml` | Push of a `v*` tag | Builds, packages via `scripts/package.sh`, publishes a GitHub Release with zip + PDB |
 | `nexus-upload.yml` | Release published or manual `workflow_dispatch` | Downloads release zip, generates cliff release notes, uploads to Nexus Mods |
 | `lint.yml` | PRs touching `scripts/` | Runs shellcheck on shell scripts |

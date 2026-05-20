@@ -81,6 +81,18 @@
                 "CMAKE_BUILD_TYPE": "Release",
                 "CMAKE_DISABLE_PRECOMPILE_HEADERS": "ON"
             }
+        },
+        {
+            "name": "test-windows",
+            "displayName": "Test (Windows, MSVC + Ninja)",
+            "description": "Build and run unit tests on Windows with MSVC",
+            "inherits": ["_vcpkg", "_ninja", "_msvc"],
+            "binaryDir": "${sourceDir}/build/test-windows",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "PLUGIN_TESTS_ONLY": "ON",
+                "VCPKG_MANIFEST_FEATURES": "tests"
+            }
         }
     ],
     "buildPresets": [
@@ -100,9 +112,23 @@
             "displayName": "Deploy to mod manager",
             "configurePreset": "release-linux",
             "targets": ["deploy"]
+        },
+        {
+            "name": "test-windows",
+            "displayName": "Test (Windows)",
+            "configurePreset": "test-windows"
         }
     ],
-    "testPresets": [],
+    "testPresets": [
+        {
+            "name": "test-windows",
+            "displayName": "Test (Windows)",
+            "configurePreset": "test-windows",
+            "output": {
+                "outputOnFailure": true
+            }
+        }
+    ],
     "packagePresets": [],
     "workflowPresets": [
         {
