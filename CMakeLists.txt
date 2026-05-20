@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.21)
 project(
     ExampleMod
     VERSION 0.0.1
+    DESCRIPTION "An SKSE plugin for Skyrim SE/AE"
     LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
@@ -52,6 +53,9 @@ add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/lib/commonlibsse-ng" "${CMAKE_CURR
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/lib/commonlibsse-ng/cmake/CommonLibSSE.cmake")
 
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/src")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/version.rc.in" "${CMAKE_CURRENT_BINARY_DIR}/src/version.rc" @ONLY)
+
 # Plugin — auto-generates SKSEPlugin_Version; Plugin.cpp only needs SKSEPlugin_Load
 add_commonlibsse_plugin(
     ${PROJECT_NAME}
@@ -61,7 +65,19 @@ add_commonlibsse_plugin(
     "Author"
     SOURCES
     src/Plugin.cpp
+    "${CMAKE_CURRENT_BINARY_DIR}/src/version.rc"
     USE_ADDRESS_LIBRARY)
+
+source_group("Resources" FILES "${CMAKE_CURRENT_BINARY_DIR}/src/version.rc")
+
+# cmake_llvm_rc preprocesses RC files using the target's INCLUDE_DIRECTORIES, not CMAKE_C_FLAGS.
+# The xwin SDK paths are in CMAKE_C_FLAGS_INIT as /imsvc flags and are invisible to cmake_llvm_rc,
+# so we add them explicitly here for the RC compiler to find winres.h.
+if(DEFINED XWIN_DIR)
+    target_include_directories(
+        ${PROJECT_NAME} SYSTEM PRIVATE "$<$<COMPILE_LANGUAGE:RC>:${XWIN_DIR}/sdk/include/um>"
+                                       "$<$<COMPILE_LANGUAGE:RC>:${XWIN_DIR}/sdk/include/shared>")
+endif()
 
 target_precompile_headers(${PROJECT_NAME} PRIVATE src/PCH.h)
 
@@ -78,6 +94,15 @@ if(MSVC)
     target_compile_options(${PROJECT_NAME} PRIVATE /Zi "$<$<CONFIG:Release>:/Zc:inline;/JMC->")
     target_link_options(${PROJECT_NAME} PRIVATE "$<$<CONFIG:Debug>:/INCREMENTAL;/OPT:NOREF;/OPT:NOICF>"
                         "$<$<CONFIG:Release>:/INCREMENTAL:NO;/OPT:REF;/OPT:ICF;/DEBUG:FULL>")
+endif()
+
+# LTO/IPO — guarded: unconditionally setting IPO causes a fatal error on toolchains that don't support it
+include(CheckIPOSupported)
+check_ipo_supported(RESULT _ipo_supported OUTPUT _ipo_output)
+if(_ipo_supported)
+    set_target_properties(${PROJECT_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
+else()
+    message(VERBOSE "IPO not supported: ${_ipo_output}")
 endif()
 
 # Deploy: copies DLL + PDB to SKYRIM_MODS_FOLDER, SKYRIM_FOLDER/Data, or build/deploy/ as fallback
