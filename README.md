@@ -33,37 +33,57 @@ Supports building on **Linux** (cross-compilation via `clang-cl` + [xwin](https:
 
 ---
 
-## Prerequisites (Developer)
+## What the Starter Plugin Does
 
-### All platforms
+When loaded by Skyrim the plugin:
+
+1. **Writes a log** to `Data/SKSE/Plugins/ExampleMod.log` via spdlog.
+2. **Hooks `kDataLoaded`** (fires once all game data is loaded).
+3. **Prints to the in-game console** (`~` key): `[ExampleMod] Loaded successfully!`
+
+---
+
+## Development
+
+### Prerequisites
+
+#### All platforms
 - [Git](https://git-scm.com/)
 - [CMake](https://cmake.org/download/) 3.21+
 - [vcpkg](https://vcpkg.io/en/getting-started) — set `VCPKG_ROOT` in your environment
 
-### Linux
+#### Linux
 - LLVM/Clang (provides `clang-cl`, `lld-link`, `llvm-lib`, `llvm-rc`, `llvm-mt`)
 - [xwin](https://github.com/Jake-Shadle/xwin) — downloads the real Windows SDK and MSVC CRT headers/libs
 - [Ninja](https://ninja-build.org/)
 
-  ```bash
-  # Arch / CachyOS
-  sudo pacman -S clang lld llvm ninja
+```bash
+# Arch / CachyOS
+sudo pacman -S clang lld llvm ninja
 
-  # Install xwin (requires Rust/cargo)
-  cargo install xwin
+# Install xwin (requires Rust/cargo)
+cargo install xwin
 
-  # Fetch Windows SDK + MSVC CRT headers to ~/.xwin  (one-time, ~700 MB)
-  xwin splat --output ~/.xwin
-  ```
+# Fetch Windows SDK + MSVC CRT headers to ~/.xwin  (one-time, ~700 MB)
+xwin splat --output ~/.xwin
+```
 
-### Windows
+> **Note:** On first configure, `cmake/toolchains/clang-cl-cross.cmake` creates
+> TitleCase symlinks inside your xwin installation, e.g.:
+> ```
+> ~/.xwin/sdk/lib/um/x86_64/Advapi32.lib  ->  advapi32.lib
+> ```
+> lld-link is case-sensitive but CommonLibSSE-NG references libs with mixed-case names.
+> The originals are untouched.
+
+#### Windows
 - [Visual Studio 2022](https://visualstudio.microsoft.com/) with **Desktop development with C++**
 
 ---
 
-## Getting Started
+### Getting Started
 
-### 1. Use this template
+#### 1. Use this template
 
 Click **"Use this template"** on GitHub, or clone and re-initialise:
 
@@ -72,7 +92,7 @@ git clone https://github.com/your-org/your-mod.git
 cd your-mod
 ```
 
-### 2. Run the init script
+#### 2. Run the init script
 
 **Linux** — run interactively or pass arguments directly:
 
@@ -96,7 +116,7 @@ This will:
 - Bootstrap vcpkg
 - Copy `.env.example` → `.env` with a reminder to fill in your paths
 
-### 3. Configure deploy path
+#### 3. Configure deploy path
 
 Edit the `.env` file created by the init script and set `SKYRIM_MODS_FOLDER` to your mod manager's staging folder:
 
@@ -108,7 +128,7 @@ SKYRIM_MODS_FOLDER=$HOME/.local/share/Steam/steamapps/common/Vortex Mods/skyrims
 # SKYRIM_MODS_FOLDER=$HOME/MO2/mods
 ```
 
-### 4. Build
+#### 4. Build
 
 ```bash
 ./scripts/build.sh
@@ -119,15 +139,7 @@ cmake --build --preset release-linux
 
 The DLL lands in `build/release-linux/ExampleMod.dll`.
 
-> **Note:** On first configure, `cmake/toolchains/clang-cl-cross.cmake` creates
-> TitleCase symlinks inside your xwin installation, e.g.:
-> ```
-> ~/.xwin/sdk/lib/um/x86_64/Advapi32.lib  ->  advapi32.lib
-> ```
-> lld-link is case-sensitive but CommonLibSSE-NG references libs with mixed-case names.
-> The originals are untouched.
-
-#### Deploy to mod manager
+##### Deploy to mod manager
 
 ```bash
 ./scripts/deploy.sh
@@ -147,7 +159,7 @@ On subsequent builds (no config change needed):
 ./scripts/deploy.sh
 ```
 
-#### Windows (MSVC)
+##### Windows (MSVC)
 
 ```bash
 cmake --preset release-windows
@@ -158,41 +170,7 @@ The DLL lands in `build/msvc/Release/ExampleMod.dll`.
 
 ---
 
-## What the Starter Plugin Does
-
-When loaded by Skyrim the plugin:
-
-1. **Writes a log** to `Data/SKSE/Plugins/ExampleMod.log` via spdlog.
-2. **Hooks `kDataLoaded`** (fires once all game data is loaded).
-3. **Prints to the in-game console** (`~` key): `[ExampleMod] Loaded successfully!`
-
----
-
-## GitHub Actions CI
-
-| Workflow | Trigger | What it does |
-|---|---|---|
-| `setup.yml` | First push in a repo created from this template | Renames placeholders using the repo name, then self-deletes |
-| `ci.yml` | PRs to `main` touching source/cmake/vcpkg | `clang-format` (ubuntu) → `build` → `clang-tidy` (windows, sequential) |
-| `release.yml` | Push of a `v*` tag | Builds, packages via `scripts/package.sh`, publishes a GitHub Release with zip + PDB |
-| `nexus-upload.yml` | Release published or manual `workflow_dispatch` | Downloads release zip, generates cliff release notes, uploads to Nexus Mods |
-| `lint.yml` | PRs touching `scripts/` | Runs shellcheck on shell scripts |
-| `pr-title.yml` | PR opened/edited/reopened/synchronize | Checks PR title follows Conventional Commits (`feat`, `fix`, `chore`, `refactor`) |
-
-### Nexus Mods Upload
-
-`nexus-upload.yml` triggers automatically when a GitHub Release is published, or can be run manually via **workflow_dispatch** with a version input.
-
-**Prerequisites (one-time setup):**
-1. Upload your first file manually via the [Nexus Mods web UI](https://www.nexusmods.com) — this creates the file group.
-2. Note the `file_group_id` from the URL or mod manager.
-3. Add to your repository:
-   - **Secret** `NEXUSMODS_API_KEY` — your Nexus Mods API key (Settings → Secrets → Actions)
-   - **Variable** `NEXUSMODS_FILE_GROUP_ID` — the file group ID (Settings → Variables → Actions)
-
----
-
-## Git Hooks (Lefthook)
+### Git Hooks (Lefthook)
 
 Prerequisites:
 
@@ -202,11 +180,13 @@ Prerequisites:
 - `cmake-format` (`sudo pacman -S cmake-format` on Arch/CachyOS; `pip install cmakelang` elsewhere)
 - `shellcheck` (`sudo pacman -S shellcheck` on Arch/CachyOS)
 
-Run `lefthook install` to register the hooks.
+```bash
+lefthook install
+```
 
 ---
 
-## Neovim / clangd Setup
+### Editor Setup (clangd / Neovim)
 
 CMake writes `compile_commands.json` to the build directory automatically.
 Copy or symlink it to the project root so clangd picks it up:
@@ -224,7 +204,7 @@ with `clangd`, and [clangd_extensions.nvim](https://github.com/p00f/clangd_exten
 
 ---
 
-## Updating CommonLibSSE-NG
+### Updating CommonLibSSE-NG
 
 ```bash
 git submodule update --remote lib/commonlibsse-ng
@@ -234,6 +214,31 @@ git commit -m "chore: update CommonLibSSE-NG submodule"
 
 ---
 
+### CI
+
+| Workflow | Trigger | What it does |
+|---|---|---|
+| `setup.yml` | First push in a repo created from this template | Renames placeholders using the repo name, then self-deletes |
+| `ci.yml` | PRs to `main` touching source/cmake/vcpkg | `clang-format` (ubuntu) → `build` → `clang-tidy` (windows, sequential) |
+| `release.yml` | Push of a `v*` tag | Builds, packages via `scripts/package.sh`, publishes a GitHub Release with zip + PDB |
+| `nexus-upload.yml` | Release published or manual `workflow_dispatch` | Downloads release zip, generates cliff release notes, uploads to Nexus Mods |
+| `lint.yml` | PRs touching `scripts/` | Runs shellcheck on shell scripts |
+| `pr-title.yml` | PR opened/edited/reopened/synchronize | Checks PR title follows Conventional Commits (`feat`, `fix`, `chore`, `refactor`) |
+
+#### Nexus Mods Upload
+
+`nexus-upload.yml` triggers automatically when a GitHub Release is published, or can be run manually via **workflow_dispatch** with a version input.
+
+**Prerequisites (one-time setup):**
+1. Upload your first file manually via the [Nexus Mods web UI](https://www.nexusmods.com) — this creates the file group.
+2. Note the `file_group_id` from the URL or mod manager.
+3. Add to your repository:
+   - **Secret** `NEXUSMODS_API_KEY` — your Nexus Mods API key (Settings → Secrets → Actions)
+   - **Variable** `NEXUSMODS_FILE_GROUP_ID` — the file group ID (Settings → Variables → Actions)
+
+---
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
