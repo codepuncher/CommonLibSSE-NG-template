@@ -1,28 +1,43 @@
 #include "PCH.h"
 
-namespace logger = SKSE::log;
-
 void SetupLog()
 {
 	auto logsFolder = logger::log_directory();
 	if (!logsFolder) {
-		SKSE::stl::report_and_fail("SKSE log_directory not provided, logs can't be written");
+		util::report_and_fail("SKSE log_directory not provided, logs can't be written");
 	}
 
-	auto logPath = *logsFolder / "ExampleMod.log";
-	auto fileSink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(logPath.string(), true);
-	auto spdlogger = std::make_shared<spdlog::logger>("global", std::move(fileSink));
+	const auto* plugin = SKSE::PluginDeclaration::GetSingleton();
+	const auto  logName = plugin ? std::string{ plugin->GetName() } + ".log" : "Plugin.log";
+	auto        logPath = *logsFolder / logName;
+
+	auto                          fileSink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(logPath.string(), true);
+	std::vector<spdlog::sink_ptr> sinks{ fileSink };
+	if (IsDebuggerPresent()) {
+		sinks.push_back(std::make_shared<spdlog::sinks::msvc_sink_mt>());
+	}
+
+	auto spdlogger = std::make_shared<spdlog::logger>("global", sinks.begin(), sinks.end());
 	spdlog::set_default_logger(std::move(spdlogger));
+	spdlog::set_pattern("[%H:%M:%S.%e] [%l] [%s:%#] %v");
+#ifdef NDEBUG
 	spdlog::set_level(spdlog::level::info);
 	spdlog::flush_on(spdlog::level::info);
+#else
+	spdlog::set_level(spdlog::level::trace);
+	spdlog::flush_on(spdlog::level::trace);
+#endif
 }
 
 void OnDataLoaded()
 {
 	logger::info("OnDataLoaded hook fired");
 
+	const auto* plugin = SKSE::PluginDeclaration::GetSingleton();
+	const auto  name = plugin ? plugin->GetName() : "Plugin";
+
 	if (auto* const console = RE::ConsoleLog::GetSingleton()) {
-		console->Print("[ExampleMod] Loaded successfully!");
+		console->Print("[%s] Loaded successfully!", std::string(name).c_str());
 	}
 }
 
