@@ -14,19 +14,24 @@
 
 ## Long Description (BBCode)
 
+<!-- The Requirements, Installation, and Compatibility sections below are generated.
+     Run `python3 scripts/generate-nexus-page.py` and copy the output to Nexus Mods.
+     Do not copy this file directly — the generated block markers are not valid BBCode. -->
+
 ```bbcode
 [center][size=5][b]ExampleMod[/b][/size]
 [i]Tagline here[/i][/center]
 
 [line]
 
-[size=4][b]Overview[/b][/size]
+[size=4][b][color=#B8953E]Overview[/color][/b][/size]
 
 Describe what the mod does.
 
 [line]
 
-[size=4][b]Requirements[/b][/size]
+<!-- generated:start -->
+[size=4][b][color=#B8953E]Requirements[/color][/b][/size]
 
 [list]
 [*][url=https://skse.silverlock.org/]SKSE64[/url]
@@ -35,7 +40,7 @@ Describe what the mod does.
 
 [line]
 
-[size=4][b]Installation[/b][/size]
+[size=4][b][color=#B8953E]Installation[/color][/b][/size]
 
 [b]Mod manager (recommended):[/b]
 [list=1]
@@ -53,16 +58,17 @@ Describe what the mod does.
 
 [line]
 
-[size=4][b]Compatibility[/b][/size]
+[size=4][b][color=#B8953E]Compatibility[/color][/b][/size]
 
 [list]
 [*]Compatible with Skyrim SE and AE.
 [*]No ESP/ESL required.
 [/list]
+<!-- generated:end -->
 
 [line]
 
-[size=4][b]Credits[/b][/size]
+[size=4][b][color=#B8953E]Credits[/color][/b][/size]
 
 [list]
 [*][url=https://skse.silverlock.org/]SKSE[/url] by the SKSE Team
