@@ -34,7 +34,6 @@ jobs:
         run: |
           FILES=(
             CMakeLists.txt
-            src/Plugin.cpp
             vcpkg.json
             README.md
           )
