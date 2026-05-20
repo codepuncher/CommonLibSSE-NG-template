@@ -8,4 +8,3 @@
 - [ ] `fix:` Bug fix
 - [ ] `chore:` Maintenance / tooling
 - [ ] `refactor:` Code refactor
-- [ ] `docs:` Documentation

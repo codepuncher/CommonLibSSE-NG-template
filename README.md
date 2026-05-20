@@ -151,7 +151,7 @@ When loaded by Skyrim the plugin:
 | `release.yml` | Push of a `v*` tag | Builds, packages via `scripts/package.sh`, publishes a GitHub Release with zip + PDB |
 | `nexus-upload.yml` | Release published or manual `workflow_dispatch` | Downloads release zip, generates cliff release notes, uploads to Nexus Mods |
 | `lint.yml` | PRs touching `scripts/` | Runs shellcheck on shell scripts |
-| `pr-title.yml` | PR opened/edited/reopened/synchronize | Checks PR title follows Conventional Commits (`feat`, `fix`, `chore`, `docs`, `refactor`, `ci`, `build`, `perf`, `test`, `style`, `revert`) |
+| `pr-title.yml` | PR opened/edited/reopened/synchronize | Checks PR title follows Conventional Commits (`feat`, `fix`, `chore`, `refactor`) |
 
 ### Nexus Mods Upload
 

@@ -17,17 +17,10 @@ commit_preprocessors = [
     { pattern = ' \(#\d+\)$', replace = "" },
 ]
 commit_parsers = [
-    { message = "^[a-z]+\\(ci\\)", skip = true },
-    { message = "^ci", skip = true },
-    { message = "^chore", skip = true },
-    { message = "^docs", skip = true },
-    { message = "^refactor", skip = true },
-    { message = "^build", skip = true },
-    { message = "^style", skip = true },
-    { message = "^test", skip = true },
     { message = "^feat", group = "New Features" },
     { message = "^fix", group = "Bug Fixes" },
-    { message = "^perf", group = "Performance Improvements" },
+    { message = "^chore", skip = true },
+    { message = "^refactor", skip = true },
     { message = ".*", skip = true },
 ]
 filter_commits = true
