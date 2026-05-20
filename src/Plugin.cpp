@@ -22,11 +22,10 @@ void SetupLog()
 	spdlog::set_pattern("[%H:%M:%S.%e] [%l] [%s:%#] %v");
 #ifdef NDEBUG
 	spdlog::set_level(spdlog::level::info);
-	spdlog::flush_on(spdlog::level::info);
 #else
 	spdlog::set_level(spdlog::level::trace);
-	spdlog::flush_on(spdlog::level::trace);
 #endif
+	spdlog::flush_on(spdlog::level::info);
 }
 
 void OnDataLoaded()
