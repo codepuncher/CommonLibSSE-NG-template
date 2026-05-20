@@ -1,10 +1,20 @@
 ## Summary
 
-<!-- Brief description of what this PR does -->
+<!-- What does this PR do and why? -->
 
-## Type of Change
+## Testing
 
-- [ ] `feat:` New feature
-- [ ] `fix:` Bug fix
-- [ ] `chore:` Maintenance / tooling
-- [ ] `refactor:` Code refactor
+<!-- How was this verified? -->
+
+## Breaking Changes
+
+<!-- List anything that breaks existing forks, or delete this section -->
+
+## Related
+
+<!-- Links to related PRs, issues, discussions, or external references — or delete this section -->
+<!-- e.g. a Nexus Mods bug report:
+> Quote from the report
+> https://www.nexusmods.com/skyrimspecialedition/mods/... -->
+
+<!-- Closes #123 -->
