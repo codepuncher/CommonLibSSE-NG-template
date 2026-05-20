@@ -7,7 +7,33 @@ Supports building on **Linux** (cross-compilation via `clang-cl` + [xwin](https:
 
 ---
 
-## Prerequisites
+<!-- nexus:start -->
+## Requirements
+
+- [SKSE64](https://skse.silverlock.org/)
+- [Address Library for SKSE Plugins](https://www.nexusmods.com/skyrimspecialedition/mods/32444)
+
+## Installation
+
+**Mod manager (recommended):**
+1. Install the requirements above.
+2. Install ExampleMod via your mod manager.
+3. Launch Skyrim via SKSE.
+
+**Manual:**
+1. Install the requirements above.
+2. Copy `ExampleMod.dll` to `Data\SKSE\Plugins\`.
+3. Launch Skyrim via SKSE.
+
+## Compatibility
+
+- Compatible with Skyrim SE and AE.
+- No ESP/ESL required.
+<!-- nexus:end -->
+
+---
+
+## Prerequisites (Developer)
 
 ### All platforms
 - [Git](https://git-scm.com/)
