@@ -2,11 +2,12 @@ commit-msg:
   commands:
     conventional-commit:
       run: |
-        msg=$(cat {1})
-        pattern='^(feat|fix|docs|style|refactor|perf|test|chore|ci|build|revert)(\(.+\))?!?: .+'
+        msg=$(head -n1 "{1}")
+        pattern='^(feat|fix|chore|refactor)(\([^()\s]+\))?!?: .+'
         if ! echo "$msg" | grep -Pq "$pattern"; then
           echo "Commit message must follow Conventional Commits format."
-          echo "Examples: feat: add cache, fix(ci): correct preset, chore!: drop support"
+          echo "Allowed types: feat, fix, chore, refactor"
+          echo "Examples: feat: add hook, fix(ci): correct preset, chore(cmake): bump version"
           echo "Got: $msg"
           exit 1
         fi
