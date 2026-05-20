@@ -30,7 +30,12 @@
             "name": "_vs2022",
             "hidden": true,
             "generator": "Visual Studio 17 2022",
-            "architecture": "x64"
+            "architecture": "x64",
+            "vendor": {
+                "microsoft.com/VisualStudioSettings/CMake/1.0": {
+                    "intelliSenseMode": "windows-msvc-x64"
+                }
+            }
         },
         {
             "name": "_clang-cl-linux",
@@ -45,7 +50,8 @@
             "name": "_msvc",
             "hidden": true,
             "cacheVariables": {
-                "VCPKG_TARGET_TRIPLET": "x64-windows-static-md"
+                "VCPKG_TARGET_TRIPLET": "x64-windows-static-md",
+                "VCPKG_HOST_TRIPLET":   "x64-windows-static-md"
             }
         },
         {
