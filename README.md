@@ -226,6 +226,29 @@ git commit -m "chore: update CommonLibSSE-NG submodule"
 
 ---
 
+### Nexus Mods Page
+
+The `<!-- nexus:start/end -->` block at the top of `README.md` is the **source of truth** for Requirements, Installation, and Compatibility. `docs/nexus-page.md` holds the rest of the BBCode page (overview, tagline, credits).
+
+To update the Nexus page:
+
+1. Edit Requirements/Installation/Compatibility inside the `<!-- nexus:start/end -->` block in `README.md`.
+2. Edit overview, tagline, and credits directly in `docs/nexus-page.md`.
+   > **Do not edit** the `<!-- generated:start/end -->` block in `docs/nexus-page.md` — it is overwritten every time the script runs.
+3. Generate the combined BBCode output:
+
+```bash
+python3 scripts/generate-nexus-page.py
+
+# Or pipe straight to the clipboard:
+python3 scripts/generate-nexus-page.py | xclip -selection clipboard  # Linux
+python3 scripts/generate-nexus-page.py | pbcopy                       # macOS
+```
+
+4. Paste the output into the Nexus Mods page editor.
+
+---
+
 ### CI
 
 | Workflow | Trigger | What it does |
