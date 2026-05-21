@@ -5,9 +5,11 @@ on:
     branches: [main]
     paths:
       - "src/**"
+      - "test/**"
       - ".clang-format"
       - ".clang-tidy"
       - "CMakeLists.txt"
+      - "CMakePresets.json"
       - "cmake/**"
       - "vcpkg.json"
       - ".github/workflows/ci.yml"
@@ -31,6 +33,52 @@ jobs:
         with:
           clang-format-version: '22'
           check-path: src
+
+      - uses: jidicula/clang-format-action@v4.18.0
+        with:
+          clang-format-version: '22'
+          check-path: test
+
+  test:
+    needs: clang-format
+    runs-on: windows-latest
+    permissions:
+      contents: read
+      actions: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          submodules: true
+
+      - name: Install CMake and Ninja
+        uses: lukka/get-cmake@latest
+
+      - name: Restore vcpkg binary cache
+        uses: actions/cache@v5
+        with:
+          path: C:\vcpkg-cache
+          key: vcpkg-tests-${{ hashFiles('vcpkg.json', 'cmake/triplets/**', 'cmake/ports/**') }}
+          restore-keys: vcpkg-tests-
+
+      - name: Setup vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgDirectory: ${{ github.workspace }}/lib/vcpkg
+        env:
+          VCPKG_BINARY_SOURCES: "clear;files,C:\\vcpkg-cache,readwrite"
+
+      - name: Configure and Build Tests
+        uses: lukka/run-cmake@v10
+        with:
+          configurePreset: test-windows
+          buildPreset: test-windows
+        env:
+          VCPKG_BINARY_SOURCES: "clear;files,C:\\vcpkg-cache,readwrite"
+
+      - name: Run Tests
+        run: ctest --preset test-windows
 
   build:
     needs: clang-format
@@ -79,7 +127,7 @@ jobs:
             build/msvc/Release/*.pdb
 
   clang-tidy:
-    needs: build
+    needs: [build, test]
     runs-on: windows-latest
     permissions:
       contents: read
