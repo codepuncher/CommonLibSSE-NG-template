@@ -17,6 +17,9 @@ commit_preprocessors = [
     { pattern = ' \(#\d+\)$', replace = "" },
 ]
 commit_parsers = [
+    { message = "^[a-z]+(\\([^)]+\\))?!:", group = "Breaking Changes" },
+    { message = "^feat\\((ci|build|docs|test|style)\\)", skip = true },
+    { message = "^fix\\((ci|build|docs|test|style)\\)", skip = true },
     { message = "^feat", group = "New Features" },
     { message = "^fix", group = "Bug Fixes" },
     { message = "^chore", skip = true },

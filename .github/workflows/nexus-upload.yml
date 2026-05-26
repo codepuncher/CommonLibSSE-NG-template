@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Version without 'v' prefix (e.g. 1.0.0)"
+        description: "Version without 'v' prefix (e.g. 1.0.0, 1.0.0-rc.1, 1.0.0+build.1)"
         type: string
         required: true
 
@@ -29,8 +29,8 @@ jobs:
         run: |
           VERSION="${RELEASE_TAG#v}"
           VERSION="${VERSION:-$INPUT_VERSION}"
-          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?(\+[a-zA-Z0-9.]+)?$ ]]; then
-            echo "Error: version must be in format X.Y.Z without 'v' prefix (e.g. 1.0.0)" >&2
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.-]+)?(\+[a-zA-Z0-9.-]+)?$ ]]; then
+            echo "Error: version must be in format X.Y.Z (optionally with prerelease/build metadata, e.g. 1.0.0-rc.1+build.1) without 'v' prefix" >&2
             exit 1
           fi
           echo "value=$VERSION" >> "$GITHUB_OUTPUT"
