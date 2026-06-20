@@ -36,7 +36,7 @@ jobs:
           echo "value=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           ref: v${{ steps.version.outputs.value }}
@@ -105,15 +105,15 @@ jobs:
           printf '%s\n' "$DELIM" >> "$GITHUB_OUTPUT"
 
       - name: Upload to Nexus Mods
-        uses: Nexus-Mods/upload-action@v1.0.0-beta.7
+        uses: Nexus-Mods/upload-action@v1.0.0-beta.8
         with:
           api_key: ${{ secrets.NEXUSMODS_API_KEY }}
-          file_group_id: ${{ vars.NEXUSMODS_FILE_GROUP_ID }}
+          file_id: ${{ vars.NEXUSMODS_FILE_ID }}
           filename: ${{ steps.artifact.outputs.zip }}
           display_name: ${{ github.event.repository.name }}
           description: ${{ steps.notes.outputs.notes }}
           version: ${{ steps.version.outputs.value }}
-          archive_existing_file: true
+          archive_existing_version: true
           primary_mod_manager_download: true
           allow_mod_manager_download: true
           show_requirements_pop_up: true
