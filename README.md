@@ -278,7 +278,7 @@ python3 scripts/generate-nexus-page.py | pbcopy                       # macOS
 
 **Prerequisites (one-time setup):**
 
-1. Upload your first file manually via the [Nexus Mods web UI](https://www.nexusmods.com) — this creates the file group.
+1. Upload your first file manually via the [Nexus Mods web UI](https://www.nexusmods.com) — this creates the mod file.
 2. Note the `file_id` from the URL or mod manager.
 3. Add to your repository:
    - **Secret** `NEXUSMODS_API_KEY` — your Nexus Mods API key (Settings → Secrets → Actions)
