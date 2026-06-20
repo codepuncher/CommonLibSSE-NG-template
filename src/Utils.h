@@ -18,6 +18,8 @@ namespace ExampleMod
 	}
 
 	// Returns a view of `s` with leading and trailing ASCII whitespace removed.
+	// The result views into `s`'s buffer, so the caller must keep that buffer alive
+	// for as long as the returned view is used (do not pass a temporary std::string).
 	[[nodiscard]] inline std::string_view TrimWhitespace(std::string_view s)
 	{
 		const auto first = s.find_first_not_of(" \t\r\n");
