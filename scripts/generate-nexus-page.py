@@ -57,6 +57,35 @@ def md_to_bbcode(md: str) -> str:
             i += 1
             continue
 
+        # Fenced code block (```lang or plain ```)
+        if line.startswith("```"):
+            fence_start = i
+            i += 1
+            code_lines: list[str] = []
+            while i < len(lines) and not lines[i].startswith("```"):
+                code_lines.append(lines[i])
+                i += 1
+            if i >= len(lines):
+                sys.exit(f"error: unterminated fenced code block opened at line {fence_start + 1}")
+            i += 1  # skip closing ```
+            output.append("[code]")
+            output.extend(code_lines)
+            output.append("[/code]")
+            continue
+
+        # Markdown pipe table — render data rows as a list (header and separator skipped)
+        if line.startswith("|"):
+            table_lines: list[str] = []
+            while i < len(lines) and lines[i].startswith("|"):
+                table_lines.append(lines[i])
+                i += 1
+            output.append("[list]")
+            for row in table_lines[2:]:  # skip header row [0] and separator row [1]
+                cells = [convert_inline(c.strip()) for c in row.strip("|").split("|")]
+                output.append(f"[*]{' — '.join(cells)}")
+            output.append("[/list]")
+            continue
+
         # Unordered list block
         if line.startswith("- "):
             items: list[str] = []
@@ -108,7 +137,7 @@ def md_to_bbcode(md: str) -> str:
 def convert_inline(text: str) -> str:
     # [text](url) → [url=url]text[/url]
     # Note: link text containing ] or URLs containing unbalanced ) are not supported.
-    text = re.sub(r"\[([^\]]+)\]\(([^)]*(?:\([^)]*\)[^)]*)*)\)", r"[url=\2]\1[/url]", text)
+    text = re.sub(r"\[([^\]]+)\]\(([^()]*(?:\([^)]*\)[^()]*)*)\)", r"[url=\2]\1[/url]", text)
     # **text** → [b]text[/b]
     text = re.sub(r"\*\*(.+?)\*\*", r"[b]\1[/b]", text)
     # `code` → [font=Courier New]code[/font]

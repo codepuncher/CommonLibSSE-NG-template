@@ -135,9 +135,30 @@ else()
         set(_default_deploy "${CMAKE_BINARY_DIR}/deploy/${PROJECT_NAME}")
     endif()
 
-    set(DEPLOY_DIR
-        "${_default_deploy}"
-        CACHE PATH "Deploy destination (set SKYRIM_MODS_FOLDER or SKYRIM_FOLDER in .env)")
+    set(DEPLOY_DIR_OVERRIDE
+        ""
+        CACHE
+            PATH
+            "Override deploy destination (leave empty to derive from SKYRIM_MODS_FOLDER or SKYRIM_FOLDER in the environment, optionally sourced from .env)"
+    )
+
+    # DEPLOY_DIR was previously written to the cache by the project and is no longer supported.
+    # Clear it so stale cached values don't shadow the env-derived path. Users who want a
+    # fixed deploy path should use -DDEPLOY_DIR_OVERRIDE=... instead.
+    if(DEFINED CACHE{DEPLOY_DIR})
+        message(WARNING "DEPLOY_DIR is no longer a cache variable and has been removed. "
+                        "To pin a fixed deploy path, set -DDEPLOY_DIR_OVERRIDE=... instead.")
+        unset(DEPLOY_DIR CACHE)
+    endif()
+
+    # Always recompute so environment changes take effect on every configure.
+    # DEPLOY_DIR_OVERRIDE (if set) wins over the env-derived default.
+    unset(DEPLOY_DIR CACHE)
+    if(NOT DEPLOY_DIR_OVERRIDE STREQUAL "")
+        set(DEPLOY_DIR "${DEPLOY_DIR_OVERRIDE}")
+    else()
+        set(DEPLOY_DIR "${_default_deploy}")
+    endif()
 
     install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION "${DEPLOY_DIR}/SKSE/Plugins")
 

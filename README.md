@@ -8,6 +8,7 @@ Supports building on **Linux** (cross-compilation via `clang-cl` + [xwin](https:
 ---
 
 <!-- nexus:start -->
+
 ## Requirements
 
 - [SKSE64](https://skse.silverlock.org/)
@@ -16,11 +17,13 @@ Supports building on **Linux** (cross-compilation via `clang-cl` + [xwin](https:
 ## Installation
 
 **Mod manager (recommended):**
+
 1. Install the requirements above.
 2. Install ExampleMod via your mod manager.
 3. Launch Skyrim via SKSE.
 
 **Manual:**
+
 1. Install the requirements above.
 2. Copy `ExampleMod.dll` to `Data\SKSE\Plugins\`.
 3. Launch Skyrim via SKSE.
@@ -29,6 +32,7 @@ Supports building on **Linux** (cross-compilation via `clang-cl` + [xwin](https:
 
 - Compatible with Skyrim SE and AE.
 - No ESP/ESL required.
+
 <!-- nexus:end -->
 
 ---
@@ -48,11 +52,13 @@ When loaded by Skyrim the plugin:
 ### Prerequisites
 
 #### All platforms
+
 - [Git](https://git-scm.com/)
 - [CMake](https://cmake.org/download/) 3.21+
 - [vcpkg](https://vcpkg.io/en/getting-started) — set `VCPKG_ROOT` in your environment
 
 #### Linux
+
 - LLVM/Clang (provides `clang-cl`, `lld-link`, `llvm-lib`, `llvm-rc`, `llvm-mt`)
 - [xwin](https://github.com/Jake-Shadle/xwin) — downloads the real Windows SDK and MSVC CRT headers/libs
 - [Ninja](https://ninja-build.org/)
@@ -70,13 +76,16 @@ xwin splat --output ~/.xwin
 
 > **Note:** On first configure, `cmake/toolchains/clang-cl-cross.cmake` creates
 > TitleCase symlinks inside your xwin installation, e.g.:
+>
 > ```
 > ~/.xwin/sdk/lib/um/x86_64/Advapi32.lib  ->  advapi32.lib
 > ```
+>
 > lld-link is case-sensitive but CommonLibSSE-NG references libs with mixed-case names.
 > The originals are untouched.
 
 #### Windows
+
 - [Visual Studio 2022](https://visualstudio.microsoft.com/) with **Desktop development with C++**
 
 ---
@@ -111,6 +120,7 @@ cd your-mod
 ```
 
 This will:
+
 - Replace mod name and author placeholders across all files
 - Initialise git submodules (CommonLibSSE-NG + vcpkg)
 - Bootstrap vcpkg
@@ -148,6 +158,7 @@ source .env && cmake --workflow --preset deploy
 ```
 
 This configures, builds, and copies `ExampleMod.dll` + `ExampleMod.pdb` directly into:
+
 ```
 $SKYRIM_MODS_FOLDER/ExampleMod/SKSE/Plugins/
 ```
@@ -155,6 +166,7 @@ $SKYRIM_MODS_FOLDER/ExampleMod/SKSE/Plugins/
 Vortex will detect the new mod folder automatically. Enable it in Vortex, then launch Skyrim.
 
 On subsequent builds (no config change needed):
+
 ```bash
 ./scripts/deploy.sh
 ```
@@ -251,20 +263,21 @@ python3 scripts/generate-nexus-page.py | pbcopy                       # macOS
 
 ### CI
 
-| Workflow | Trigger | What it does |
-|---|---|---|
-| `setup.yml` | First push in a repo created from this template | Renames placeholders using the repo name, then self-deletes |
-| `ci.yml` | PRs to `main` touching `src/`, `test/`, `cmake/`, `vcpkg.json`, `CMakeLists.txt`, `CMakePresets.json` | `clang-format` (ubuntu) → `test` + `build` (windows, parallel) → `clang-tidy` (windows) |
-| `release.yml` | Push of a `v*` tag | Builds, packages via `scripts/package.sh`, publishes a GitHub Release with zip + PDB |
-| `nexus-upload.yml` | Release published or manual `workflow_dispatch` | Downloads release zip, generates cliff release notes, uploads to Nexus Mods |
-| `lint.yml` | PRs touching `scripts/` | Runs shellcheck on shell scripts |
-| `pr-title.yml` | PR opened/edited/reopened/synchronize | Checks PR title follows Conventional Commits (`feat`, `fix`, `chore`, `refactor`) |
+| Workflow           | Trigger                                                                                               | What it does                                                                               |
+| ------------------ | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `setup.yml`        | First push in a repo created from this template                                                       | Renames placeholders using the repo name, then self-deletes                                |
+| `ci.yml`           | PRs to `main` touching `src/`, `test/`, `cmake/`, `vcpkg.json`, `CMakeLists.txt`, `CMakePresets.json` | `clang-format` (ubuntu) → `test` + `build` (windows, parallel) → `clang-tidy` (windows)    |
+| `release.yml`      | Push of a `v*` tag                                                                                    | Builds, packages via `scripts/package.sh`, publishes a GitHub Release with zip + PDB       |
+| `nexus-upload.yml` | Release published or manual `workflow_dispatch`                                                       | Downloads release zip, generates cliff release notes, uploads to Nexus Mods                |
+| `lint.yml`         | PRs touching `scripts/`, `README.md`, or `docs/`                                                      | Runs shellcheck on shell scripts, plus dprint formatting and Vale prose checks on Markdown |
+| `pr-title.yml`     | PR opened/edited/reopened/synchronize                                                                 | Checks PR title follows Conventional Commits (`feat`, `fix`, `chore`, `refactor`)          |
 
 #### Nexus Mods Upload
 
 `nexus-upload.yml` triggers automatically when a GitHub Release is published, or can be run manually via **workflow_dispatch** with a version input.
 
 **Prerequisites (one-time setup):**
+
 1. Upload your first file manually via the [Nexus Mods web UI](https://www.nexusmods.com) — this creates the file group.
 2. Note the `file_group_id` from the URL or mod manager.
 3. Add to your repository:
@@ -276,4 +289,3 @@ python3 scripts/generate-nexus-page.py | pbcopy                       # macOS
 ## License
 
 MIT — see [LICENSE](LICENSE).
-

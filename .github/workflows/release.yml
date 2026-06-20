@@ -9,11 +9,10 @@ permissions: {}
 
 jobs:
   release:
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     permissions:
       contents: write
-      actions: write
 
     steps:
       - name: Checkout

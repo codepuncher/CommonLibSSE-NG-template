@@ -4,6 +4,14 @@ on:
   pull_request:
     paths:
       - 'scripts/**'
+      - 'README.md'
+      - 'docs/**/*.md'
+      - '.vale.ini'
+      - '.vale/styles/**'
+      - 'dprint.json'
+      - 'lefthook.yml'
+      - '.github/workflows/lint.yml'
+  workflow_dispatch:
 
 permissions: {}
 
@@ -23,3 +31,28 @@ jobs:
         uses: azohra/shell-linter@v0.8.0
         with:
           path: "scripts/*.sh"
+
+  markdown:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check markdown formatting
+        uses: dprint/check@v2.3
+        with:
+          args: README.md docs/**/*.md
+
+      - name: Annotate markdown prose
+        uses: vale-cli/vale-action@v2
+        with:
+          files: "."
+          vale_flags: "--glob=README.md --glob=docs/**/*.md"
+          reporter: github-pr-check
+          filter_mode: nofilter
+          fail_on_error: true
