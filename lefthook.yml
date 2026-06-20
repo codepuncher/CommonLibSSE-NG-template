@@ -20,6 +20,8 @@ pre-commit:
         - "src/*.h"
         - "src/**/*.cpp"
         - "src/**/*.h"
+        - "test/*.cpp"
+        - "test/**/*.cpp"
       run: clang-format -i {staged_files}
       stage_fixed: true
     cmake-format:
@@ -45,3 +47,15 @@ pre-commit:
       glob: "scripts/*.sh"
       run: shellcheck {staged_files}
       fail_text: "shellcheck found issues"
+    dprint-markdown:
+      glob:
+        - "README.md"
+        - "docs/**/*.md"
+      run: dprint fmt {staged_files}
+      stage_fixed: true
+    vale-markdown:
+      glob:
+        - "README.md"
+        - "docs/**/*.md"
+      run: vale {staged_files}
+      fail_text: "vale found markdown prose issues"
