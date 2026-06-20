@@ -44,6 +44,8 @@ namespace ExampleMod
 
 	// Sanitises a (typically config-sourced) float: returns `defaultVal` when `value` is
 	// non-finite or below `minVal`, clamps to `maxVal` when above, otherwise returns `value`.
+	// Precondition: minVal <= defaultVal <= maxVal — these are caller-supplied bounds
+	// (normally constants), checked by assert in debug builds.
 	[[nodiscard]] inline float ClampOrDefault(float value, float defaultVal, float minVal, float maxVal)
 	{
 		assert(minVal <= defaultVal && defaultVal <= maxVal);
