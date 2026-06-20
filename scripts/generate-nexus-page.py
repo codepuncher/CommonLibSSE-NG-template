@@ -81,7 +81,9 @@ def md_to_bbcode(md: str) -> str:
                 i += 1
             output.append("[list]")
             for row in table_lines[2:]:  # skip header row [0] and separator row [1]
-                cells = [convert_inline(c.strip()) for c in row.strip("|").split("|")]
+                # Split on unescaped pipes only, then unescape `\|` within each cell.
+                raw = re.split(r"(?<!\\)\|", row.strip().strip("|"))
+                cells = [convert_inline(c.strip().replace("\\|", "|")) for c in raw]
                 output.append(f"[*]{' — '.join(cells)}")
             output.append("[/list]")
             continue
