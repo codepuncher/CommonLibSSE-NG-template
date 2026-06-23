@@ -29,6 +29,12 @@ if(PLUGIN_TESTS_ONLY)
 
 else()
 
+    # Fail fast with an actionable message if the submodule wasn't checked out.
+    if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/lib/commonlibsse-ng/CMakeLists.txt")
+        message(FATAL_ERROR "lib/commonlibsse-ng is not checked out. Clone with --recurse-submodules, "
+                            "or run: git submodule update --init --recursive")
+    endif()
+
     # Dependencies
 
     find_package(spdlog CONFIG REQUIRED)
