@@ -114,9 +114,9 @@ The `--recurse-submodules` flag (or `-- --recurse-submodules` for `gh repo clone
 
 #### 2. Set your mod name and author
 
-For a repo created from the template, the `setup.yml` workflow renames the `ExampleMod` and `Author` placeholders for you, deriving them from the repo name and owner, then removes itself. You don't need to run anything.
+For a repo created from the template, the **Template Setup** workflow (`setup.yml`) renames the `ExampleMod` and `Author` placeholders, deriving them from the repo name and owner, commits the result, and removes itself. It can run automatically when the repo is created; if it hasn't, trigger it from the **Actions** tab ("Template Setup" > "Run workflow"). Once it has run, `git pull` to get the renamed sources.
 
-The init script is the manual fallback: run it if you cloned the template directly, or if the workflow didn't run. It replaces the placeholders, initialises the submodules (CommonLibSSE-NG + vcpkg), bootstraps vcpkg, and copies `.env.example` to `.env`.
+Prefer to rename locally, or cloned the template directly? Run the init script instead. It replaces the placeholders, initialises the submodules (CommonLibSSE-NG + vcpkg), bootstraps vcpkg, and copies `.env.example` to `.env`.
 
 **Linux** — run interactively or pass arguments directly:
 
