@@ -2,17 +2,20 @@ cmake_minimum_required(VERSION 3.21)
 
 # project() resolves CMAKE_TOOLCHAIN_FILE (lib/vcpkg/...), so submodules must exist before it.
 # Self-heal a non-recursive clone here; otherwise a plain clone dies at project() with
-# "Could not find toolchain file". Guarded on the toolchain file so it only runs when needed.
+# "Could not find toolchain file". Top-level builds only, and only when the toolchain is absent.
 find_package(Git QUIET)
-if(GIT_FOUND
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR
+   AND GIT_FOUND
    AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.git"
    AND NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/lib/vcpkg/scripts/buildsystems/vcpkg.cmake")
     execute_process(
         COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        RESULT_VARIABLE _submod_result)
+        RESULT_VARIABLE _submod_result
+        OUTPUT_VARIABLE _submod_output
+        ERROR_VARIABLE _submod_output)
     if(NOT _submod_result EQUAL 0)
-        message(FATAL_ERROR "git submodule update failed (exit code ${_submod_result})")
+        message(FATAL_ERROR "git submodule update failed (exit ${_submod_result}):\n${_submod_output}")
     endif()
 endif()
 
