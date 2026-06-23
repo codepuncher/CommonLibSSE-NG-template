@@ -23,8 +23,8 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR
    AND _requested_toolchain STREQUAL _vcpkg_toolchain
    AND NOT EXISTS "${_vcpkg_toolchain}")
     execute_process(
-        COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMAND "${GIT_EXECUTABLE}" submodule update --init --recursive
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
         RESULT_VARIABLE _submod_result
         OUTPUT_VARIABLE _submod_stdout
         ERROR_VARIABLE _submod_stderr)
