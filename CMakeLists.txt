@@ -1,27 +1,12 @@
 cmake_minimum_required(VERSION 3.21)
 
-# project() loads CMAKE_TOOLCHAIN_FILE (the vcpkg toolchain), so the submodule must exist
-# before it. Self-heal a non-recursive clone here; otherwise a plain clone dies at project()
-# with "Could not find toolchain file". Only for a top-level build that requests the vcpkg
-# toolchain when it isn't checked out yet.
+# Self-heal submodules for a non-recursive top-level clone. The vcpkg toolchain must exist
+# before project() loads CMAKE_TOOLCHAIN_FILE; commonlibsse-ng is healed later in the plugin
+# branch where it is consumed. Normal checkouts hit a cheap no-op.
 find_package(Git QUIET)
-set(_vcpkg_toolchain "${CMAKE_CURRENT_SOURCE_DIR}/lib/vcpkg/scripts/buildsystems/vcpkg.cmake")
-set(_requested_toolchain "")
-if(CMAKE_TOOLCHAIN_FILE)
-    # Resolve to a normalised absolute path so the compare and EXISTS are well-defined
-    # regardless of a relative or back-slashed CMAKE_TOOLCHAIN_FILE.
-    get_filename_component(
-        _requested_toolchain
-        "${CMAKE_TOOLCHAIN_FILE}"
-        ABSOLUTE
-        BASE_DIR
-        "${CMAKE_BINARY_DIR}")
-endif()
-if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR
-   AND GIT_FOUND
-   AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.git"
-   AND _requested_toolchain STREQUAL _vcpkg_toolchain
-   AND NOT EXISTS "${_vcpkg_toolchain}")
+
+# Run `git submodule update --init --recursive`, failing the configure with git's output.
+macro(commonlibsse_init_submodules)
     execute_process(
         COMMAND "${GIT_EXECUTABLE}" submodule update --init --recursive
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
@@ -31,6 +16,32 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR
     if(NOT _submod_result EQUAL 0)
         message(FATAL_ERROR "git submodule update failed (exit ${_submod_result}):\n${_submod_stdout}${_submod_stderr}")
     endif()
+endmacro()
+
+set(_can_self_heal FALSE)
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR
+   AND GIT_FOUND
+   AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.git")
+    set(_can_self_heal TRUE)
+endif()
+
+# Heal vcpkg before project() resolves it, but only when this build requests that toolchain.
+set(_vcpkg_toolchain "${CMAKE_CURRENT_SOURCE_DIR}/lib/vcpkg/scripts/buildsystems/vcpkg.cmake")
+set(_requested_toolchain "")
+if(CMAKE_TOOLCHAIN_FILE)
+    # Normalise to an absolute path so the compare and EXISTS are well-defined regardless of a
+    # relative or back-slashed CMAKE_TOOLCHAIN_FILE.
+    get_filename_component(
+        _requested_toolchain
+        "${CMAKE_TOOLCHAIN_FILE}"
+        ABSOLUTE
+        BASE_DIR
+        "${CMAKE_BINARY_DIR}")
+endif()
+if(_can_self_heal
+   AND _requested_toolchain STREQUAL _vcpkg_toolchain
+   AND NOT EXISTS "${_vcpkg_toolchain}")
+    commonlibsse_init_submodules()
 endif()
 
 project(
@@ -87,6 +98,11 @@ else()
     set(SKSE_SUPPORT_XBYAK
         OFF
         CACHE BOOL "" FORCE)
+
+    # Heal commonlibsse-ng if a partial clone left it out (the pre-project block only guarantees vcpkg).
+    if(_can_self_heal AND NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/lib/commonlibsse-ng/CMakeLists.txt")
+        commonlibsse_init_submodules()
+    endif()
 
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/lib/commonlibsse-ng" "${CMAKE_CURRENT_BINARY_DIR}/commonlibsse-ng"
                      EXCLUDE_FROM_ALL)
