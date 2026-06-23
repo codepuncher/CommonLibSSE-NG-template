@@ -5,11 +5,23 @@ cmake_minimum_required(VERSION 3.21)
 # with "Could not find toolchain file". Only for a top-level build that requests the vcpkg
 # toolchain when it isn't checked out yet.
 find_package(Git QUIET)
+set(_vcpkg_toolchain "${CMAKE_CURRENT_SOURCE_DIR}/lib/vcpkg/scripts/buildsystems/vcpkg.cmake")
+set(_requested_toolchain "")
+if(CMAKE_TOOLCHAIN_FILE)
+    # Resolve to a normalised absolute path so the compare and EXISTS are well-defined
+    # regardless of a relative or back-slashed CMAKE_TOOLCHAIN_FILE.
+    get_filename_component(
+        _requested_toolchain
+        "${CMAKE_TOOLCHAIN_FILE}"
+        ABSOLUTE
+        BASE_DIR
+        "${CMAKE_BINARY_DIR}")
+endif()
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR
    AND GIT_FOUND
    AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.git"
-   AND CMAKE_TOOLCHAIN_FILE MATCHES "lib/vcpkg/scripts/buildsystems/vcpkg.cmake"
-   AND NOT EXISTS "${CMAKE_TOOLCHAIN_FILE}")
+   AND _requested_toolchain STREQUAL _vcpkg_toolchain
+   AND NOT EXISTS "${_vcpkg_toolchain}")
     execute_process(
         COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
