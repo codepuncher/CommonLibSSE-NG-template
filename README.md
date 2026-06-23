@@ -97,6 +97,7 @@ xwin splat --output ~/.xwin
 With the GitHub CLI, create your own repo from the template and clone it with submodules:
 
 ```bash
+# Pick visibility: --public (free GitHub Actions) or --private
 gh repo create your-org/your-mod --template codepuncher/CommonLibSSE-NG-template --public
 gh repo clone your-org/your-mod -- --recurse-submodules
 cd your-mod
