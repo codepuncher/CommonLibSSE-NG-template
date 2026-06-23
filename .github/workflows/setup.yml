@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
     paths: ['.github/template-setup-pending']
+  workflow_dispatch:
 
 jobs:
   setup:
@@ -14,12 +15,23 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: Skip if already initialised
+        id: guard
+        run: |
+          if [[ -f .github/template-setup-pending ]]; then
+            echo "pending=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "pending=false" >> "$GITHUB_OUTPUT"
+            echo "Project already initialised; nothing to do."
+          fi
+
       - name: Derive mod name from repo name
+        if: steps.guard.outputs.pending == 'true'
         id: names
         run: |
           REPO="${{ github.event.repository.name }}"
-          # kebab-case or snake_case → PascalCase
-          MOD_NAME=$(echo "$REPO" | sed -E 's/(^|[-_])([a-z])/\U\2/g')
+          # kebab-case or snake_case → PascalCase; strip separators left before digits
+          MOD_NAME=$(echo "$REPO" | sed -E 's/(^|[-_]+)([a-z0-9])/\U\2/g; s/[-_]+//g')
           MOD_NAME_LOWER=$(echo "$MOD_NAME" | tr '[:upper:]' '[:lower:]')
           AUTHOR="${{ github.repository_owner }}"
           echo "mod_name=${MOD_NAME}"       >> "$GITHUB_OUTPUT"
@@ -27,6 +39,7 @@ jobs:
           echo "author=${AUTHOR}"           >> "$GITHUB_OUTPUT"
 
       - name: Replace placeholders
+        if: steps.guard.outputs.pending == 'true'
         env:
           MOD_NAME: ${{ steps.names.outputs.mod_name }}
           MOD_NAME_LOWER: ${{ steps.names.outputs.mod_name_lower }}
@@ -42,18 +55,20 @@ jobs:
             sed -i \
               -e "s|examplemod|${MOD_NAME_LOWER}|g" \
               -e "s|ExampleMod|${MOD_NAME}|g" \
-              -e "s|Author|${AUTHOR}|g" \
+              -e "s|\"Author\"|\"${AUTHOR}\"|g" \
               "$file"
           done
 
       - name: Remove setup workflow and sentinel
+        if: steps.guard.outputs.pending == 'true'
         run: |
-          git rm .github/workflows/setup.yml .github/template-setup-pending
+          git rm -f --ignore-unmatch .github/workflows/setup.yml .github/template-setup-pending
 
       - name: Commit
+        if: steps.guard.outputs.pending == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -A
-          git commit -m "chore: initialise project as ${{ steps.names.outputs.mod_name }}"
+          git diff --cached --quiet || git commit -m "chore: initialise project as ${{ steps.names.outputs.mod_name }}"
           git push
