@@ -29,16 +29,10 @@ if(PLUGIN_TESTS_ONLY)
 
 else()
 
-    # Auto-init submodules if inside a git repo (self-heals if user skipped init.sh)
-    find_package(Git QUIET)
-    if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
-        execute_process(
-            COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
-            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-            RESULT_VARIABLE _submod_result)
-        if(NOT _submod_result EQUAL 0)
-            message(FATAL_ERROR "git submodule update failed (exit code ${_submod_result})")
-        endif()
+    # Fail fast with an actionable message if the submodule wasn't checked out.
+    if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/lib/commonlibsse-ng/CMakeLists.txt")
+        message(FATAL_ERROR "lib/commonlibsse-ng is not checked out. Clone with --recurse-submodules, "
+                            "or run: git submodule update --init --recursive")
     endif()
 
     # Dependencies

@@ -92,16 +92,31 @@ xwin splat --output ~/.xwin
 
 ### Getting Started
 
-#### 1. Use this template
+#### 1. Create your repo from the template
 
-Click **"Use this template"** on GitHub, or clone and re-initialise:
+With the GitHub CLI, create your own repo from the template and clone it with submodules:
 
 ```bash
-git clone https://github.com/your-org/your-mod.git
+# Pick visibility: --public (free GitHub Actions) or --private
+gh repo create your-org/your-mod --template codepuncher/CommonLibSSE-NG-template --public
+gh repo clone your-org/your-mod -- --recurse-submodules
 cd your-mod
 ```
 
-#### 2. Run the init script
+Or click **"Use this template"** on GitHub, then clone your new repo with submodules:
+
+```bash
+git clone --recurse-submodules https://github.com/your-org/your-mod.git
+cd your-mod
+```
+
+The `--recurse-submodules` flag (or `-- --recurse-submodules` for `gh repo clone`) is required: the build needs the vcpkg and CommonLibSSE-NG submodules. If you cloned without it, run `git submodule update --init --recursive`.
+
+#### 2. Set your mod name and author
+
+For a repo created from the template, the **Template Setup** workflow (`setup.yml`) renames the `ExampleMod` and `Author` placeholders, deriving them from the repo name and owner, commits the result, and removes itself. It can run automatically when the repo is created; if it hasn't, trigger it from the **Actions** tab ("Template Setup" > "Run workflow"). Once it has run, `git pull` to get the renamed sources.
+
+Prefer to rename locally, or cloned the template directly? Run the init script instead. It replaces the placeholders, initialises the submodules (CommonLibSSE-NG + vcpkg), bootstraps vcpkg, and copies `.env.example` to `.env`.
 
 **Linux** — run interactively or pass arguments directly:
 
@@ -119,16 +134,9 @@ cd your-mod
 .\scripts\init.ps1 "AuthorName" "ModName"
 ```
 
-This will:
-
-- Replace mod name and author placeholders across all files
-- Initialise git submodules (CommonLibSSE-NG + vcpkg)
-- Bootstrap vcpkg
-- Copy `.env.example` → `.env` with a reminder to fill in your paths
-
 #### 3. Configure deploy path
 
-Edit the `.env` file created by the init script and set `SKYRIM_MODS_FOLDER` to your mod manager's staging folder:
+Copy `.env.example` to `.env` if you don't have one yet (the init script does this for you), then set `SKYRIM_MODS_FOLDER` to your mod manager's staging folder:
 
 ```bash
 # Vortex (Linux, Steam):
