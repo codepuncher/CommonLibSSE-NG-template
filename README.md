@@ -94,12 +94,14 @@ xwin splat --output ~/.xwin
 
 #### 1. Use this template
 
-Click **"Use this template"** on GitHub, or clone and re-initialise:
+Click **"Use this template"** on GitHub to generate your repo, then clone it with submodules. Or clone this template directly to re-initialise:
 
 ```bash
-git clone https://github.com/your-org/your-mod.git
+git clone --recurse-submodules https://github.com/your-org/your-mod.git
 cd your-mod
 ```
+
+The `--recurse-submodules` flag is required: the build needs the vcpkg and CommonLibSSE-NG submodules. If you already cloned without it, run `git submodule update --init --recursive`. With the GitHub CLI, clone using `gh repo clone your-org/your-mod -- --recurse-submodules`.
 
 #### 2. Run the init script
 
