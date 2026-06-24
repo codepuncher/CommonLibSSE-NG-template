@@ -25,10 +25,10 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Run shellcheck
-        uses: azohra/shell-linter@v0.8.0
+        uses: azohra/shell-linter@30a9cf3f6cf25c08fc98f10d7dc4167f7b5c0c00 # v0.8.0
         with:
           path: "scripts/*.sh"
 
@@ -41,15 +41,15 @@ jobs:
       pull-requests: write
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Check markdown formatting
-        uses: dprint/check@v2.3
+        uses: dprint/check@9cb3a2b17a8e606d37aae341e49df3654933fc23 # v2.3
         with:
           args: README.md docs/**/*.md
 
       - name: Annotate markdown prose
-        uses: vale-cli/vale-action@v2
+        uses: vale-cli/vale-action@85f9f7f2c5f449ac0ae5b66662961bae3f77ca6a # 2.1.2
         with:
           files: "."
           vale_flags: "--glob=README.md --glob=docs/**/*.md"
