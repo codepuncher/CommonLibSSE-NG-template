@@ -7,18 +7,24 @@ on:
 
 permissions: {}
 
+env:
+  # ilammy/msvc-dev-cmd still runs on node20; this forces it onto node24 until it migrates.
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   release:
-    runs-on: windows-2022
+    runs-on: windows-latest
 
     permissions:
       contents: write
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: recursive
+
+      - uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1.13.0
 
       - name: Determine version
         id: version
@@ -29,25 +35,11 @@ jobs:
           $v = $env:GH_REF_NAME -replace '^v', ''
           echo "value=$v" >> $env:GITHUB_OUTPUT
 
-      - name: Install CMake and Ninja
-        uses: lukka/get-cmake@latest
-
-      - name: Restore vcpkg binary cache
-        uses: actions/cache@v5
-        with:
-          path: C:\vcpkg-cache
-          key: vcpkg-${{ hashFiles('vcpkg.json', 'cmake/triplets/**', 'cmake/ports/**') }}
-          restore-keys: vcpkg-
-
       - name: Setup vcpkg
-        uses: lukka/run-vcpkg@v11
-        with:
-          vcpkgDirectory: ${{ github.workspace }}/lib/vcpkg
-        env:
-          VCPKG_BINARY_SOURCES: "clear;files,C:\\vcpkg-cache,readwrite"
+        uses: ./.github/actions/setup-vcpkg
 
       - name: Configure and Build
-        uses: lukka/run-cmake@v10
+        uses: lukka/run-cmake@5d55ea7949e25f69f0ecb516d8d572297e03a956 # v10.9
         with:
           configurePreset: release-windows
           buildPreset: release-windows
@@ -59,12 +51,12 @@ jobs:
         shell: bash
         env:
           VERSION: ${{ steps.version.outputs.value }}
-        run: bash scripts/package.sh --build-dir build/msvc/Release "$VERSION"
+        run: bash scripts/package.sh --build-dir build/msvc "$VERSION"
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@718ea10b132b3b2eba29c1007bb80653f286566b # v3.0.1
         with:
           files: |
             ${{ steps.package.outputs.zip }}
-            build/msvc/Release/*.pdb
+            build/msvc/*.pdb
           generate_release_notes: true
