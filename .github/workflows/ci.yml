@@ -195,7 +195,8 @@ jobs:
 
       - uses: KyleMayes/install-llvm-action@ebc0426251bc40c7cd31162802432c68818ab8f0 # v2.0.9
         with:
-          version: "19"
+          # VS 2026 STL on the windows-latest image requires Clang 20 or newer (STL1000).
+          version: "21"
 
       - name: Setup vcpkg
         uses: ./.github/actions/setup-vcpkg
