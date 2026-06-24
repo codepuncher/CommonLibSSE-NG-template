@@ -186,6 +186,8 @@ cmake --preset release-windows
 cmake --build --preset release-windows
 ```
 
+> Run these from a **Developer Command Prompt for VS** (or after sourcing `vcvars64.bat`) so `cl.exe` and the Windows SDK are on `PATH`. The preset uses the Ninja generator, which builds with whatever MSVC toolset the environment provides.
+
 The DLL lands in `build/msvc/ExampleMod.dll`.
 
 #### 5. Running tests
