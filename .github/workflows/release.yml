@@ -7,6 +7,10 @@ on:
 
 permissions: {}
 
+env:
+  # ilammy/msvc-dev-cmd still runs on node20; this forces it onto node24 until it migrates.
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   release:
     runs-on: windows-latest

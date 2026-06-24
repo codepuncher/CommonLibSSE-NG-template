@@ -11,6 +11,11 @@ concurrency:
 
 permissions: {}
 
+env:
+  # ilammy/msvc-dev-cmd and KyleMayes/install-llvm-action still run on node20;
+  # this forces them onto node24 until they migrate.
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   changes:
     runs-on: ubuntu-latest
@@ -101,6 +106,8 @@ jobs:
         with:
           submodules: true
 
+      - uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1.13.0
+
       - name: Setup vcpkg
         uses: ./.github/actions/setup-vcpkg
         with:
@@ -180,11 +187,6 @@ jobs:
 
     permissions:
       contents: read
-
-    env:
-      # ilammy/msvc-dev-cmd and KyleMayes/install-llvm-action still run on node20;
-      # this forces them onto node24 until they migrate.
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
