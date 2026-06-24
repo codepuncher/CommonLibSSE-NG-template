@@ -27,17 +27,6 @@
             }
         },
         {
-            "name": "_vs2022",
-            "hidden": true,
-            "generator": "Visual Studio 17 2022",
-            "architecture": "x64",
-            "vendor": {
-                "microsoft.com/VisualStudioSettings/CMake/1.0": {
-                    "intelliSenseMode": "windows-msvc-x64"
-                }
-            }
-        },
-        {
             "name": "_clang-cl-linux",
             "hidden": true,
             "cacheVariables": {
@@ -66,10 +55,13 @@
         },
         {
             "name": "release-windows",
-            "displayName": "Release (Windows, MSVC)",
-            "description": "Build for Skyrim SE/AE on Windows using Visual Studio 2022",
-            "inherits": ["_vcpkg", "_vs2022", "_msvc"],
-            "binaryDir": "${sourceDir}/build/msvc"
+            "displayName": "Release (Windows, MSVC + Ninja)",
+            "description": "Build for Skyrim SE/AE on Windows using MSVC and Ninja",
+            "inherits": ["_vcpkg", "_ninja", "_msvc"],
+            "binaryDir": "${sourceDir}/build/msvc",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
         },
         {
             "name": "tidy-windows",
@@ -104,8 +96,7 @@
         {
             "name": "release-windows",
             "displayName": "Release (Windows)",
-            "configurePreset": "release-windows",
-            "configuration": "Release"
+            "configurePreset": "release-windows"
         },
         {
             "name": "deploy",

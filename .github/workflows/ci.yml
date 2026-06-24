@@ -140,6 +140,8 @@ jobs:
         with:
           submodules: recursive
 
+      - uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1.13.0
+
       - name: Setup vcpkg
         uses: ./.github/actions/setup-vcpkg
 
@@ -156,8 +158,8 @@ jobs:
         with:
           name: ${{ github.event.repository.name }}
           path: |
-            build/msvc/Release/*.dll
-            build/msvc/Release/*.pdb
+            build/msvc/*.dll
+            build/msvc/*.pdb
 
   clang-tidy:
     needs: [changes, clang-format, build, test]

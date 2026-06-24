@@ -86,7 +86,7 @@ xwin splat --output ~/.xwin
 
 #### Windows
 
-- [Visual Studio 2022](https://visualstudio.microsoft.com/) with **Desktop development with C++**
+- [Visual Studio 2022 or newer](https://visualstudio.microsoft.com/) (or the standalone Build Tools) with **Desktop development with C++**, which provides MSVC, CMake, and Ninja
 
 ---
 
@@ -186,7 +186,7 @@ cmake --preset release-windows
 cmake --build --preset release-windows
 ```
 
-The DLL lands in `build/msvc/Release/ExampleMod.dll`.
+The DLL lands in `build/msvc/ExampleMod.dll`.
 
 #### 5. Running tests
 
