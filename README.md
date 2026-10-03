@@ -240,10 +240,12 @@ with `clangd`, and [clangd_extensions.nvim](https://github.com/p00f/clangd_exten
 
 ### Updating CommonLibSSE-NG
 
+The script pins the submodule to a release tag (`v*`) on the `ng` branch and stages it. Without an argument it picks the latest tag:
+
 ```bash
-git submodule update --remote lib/commonlibsse-ng
-git add lib/commonlibsse-ng
-git commit -m "chore: update CommonLibSSE-NG submodule"
+./scripts/update.sh          # latest release tag
+./scripts/update.sh v10.1.0  # a specific tag
+git commit -m "chore(deps): update CommonLibSSE-NG to v10.1.0"
 ```
 
 ---
