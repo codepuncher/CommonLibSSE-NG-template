@@ -12,7 +12,7 @@ Supports building on **Linux** (cross-compilation via `clang-cl` + [xwin](https:
 ## Requirements
 
 - [SKSE64](https://skse.silverlock.org/)
-- [Address Library for SKSE Plugins](https://www.nexusmods.com/skyrimspecialedition/mods/32444)
+- [Address Library for SKSE Plugins](https://www.nexusmods.com/skyrimspecialedition/mods/32444) for SE and AE, or [VR Address Library for SKSEVR](https://www.nexusmods.com/skyrimspecialedition/mods/58101) for VR
 
 ## Installation
 
@@ -30,7 +30,7 @@ Supports building on **Linux** (cross-compilation via `clang-cl` + [xwin](https:
 
 ## Compatibility
 
-- Compatible with Skyrim SE and AE.
+- Compatible with Skyrim SE, AE, and VR.
 - No ESP/ESL required.
 
 <!-- nexus:end -->

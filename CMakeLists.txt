@@ -52,7 +52,7 @@ else()
         ON
         CACHE BOOL "" FORCE)
     set(ENABLE_SKYRIM_VR
-        OFF
+        ON
         CACHE BOOL "" FORCE)
     set(BUILD_TESTS
         OFF
@@ -61,8 +61,14 @@ else()
         OFF
         CACHE BOOL "" FORCE)
 
+    # With SE, AE, and VR all enabled, Prebuilt.cmake fetches a prebuilt CommonLibSSE.lib on
+    # GITHUB_ACTIONS. That artifact is MSVC-only and cannot link with the clang-cl cross toolchain.
+    # COMMONLIB_PREBUILT=OFF does not stop the fetch, so the env var is unset for this call only.
+    set(_github_actions "$ENV{GITHUB_ACTIONS}")
+    unset(ENV{GITHUB_ACTIONS})
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/lib/commonlibsse-ng" "${CMAKE_CURRENT_BINARY_DIR}/commonlibsse-ng"
                      EXCLUDE_FROM_ALL)
+    set(ENV{GITHUB_ACTIONS} "${_github_actions}")
 
     include("${CMAKE_CURRENT_SOURCE_DIR}/lib/commonlibsse-ng/cmake/CommonLibSSE.cmake")
 
