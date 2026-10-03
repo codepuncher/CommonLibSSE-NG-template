@@ -278,21 +278,13 @@ python3 scripts/generate-nexus-page.py | pbcopy                       # macOS
 | `setup.yml`        | First push in a repo created from this template                                                       | Renames placeholders using the repo name, then self-deletes                                |
 | `ci.yml`           | PRs to `main` touching `src/`, `test/`, `cmake/`, `vcpkg.json`, `CMakeLists.txt`, `CMakePresets.json` | `clang-format` (ubuntu) → `test` + `build` (windows, parallel) → `clang-tidy` (windows)    |
 | `release.yml`      | Push of a `v*` tag                                                                                    | Builds, packages via `scripts/package.sh`, publishes a GitHub Release with zip + PDB       |
-| `nexus-upload.yml` | Release published or manual `workflow_dispatch`                                                       | Downloads release zip, generates cliff release notes, uploads to Nexus Mods                |
+| `nexus-upload.yml` | Auto-triggered via `workflow_run` once `release.yml` completes, or manual `workflow_dispatch`         | Downloads release zip, generates cliff release notes, uploads to Nexus Mods                |
 | `lint.yml`         | PRs touching `scripts/`, `README.md`, or `docs/`                                                      | Runs shellcheck on shell scripts, plus dprint formatting and Vale prose checks on Markdown |
 | `pr-title.yml`     | PR opened/edited/reopened/synchronize                                                                 | Checks PR title follows Conventional Commits (`feat`, `fix`, `chore`, `refactor`)          |
 
 #### Nexus Mods Upload
 
-`nexus-upload.yml` triggers automatically when a GitHub Release is published, or can be run manually via **workflow_dispatch** with a version input.
-
-**Prerequisites (one-time setup):**
-
-1. Upload your first file manually via the [Nexus Mods web UI](https://www.nexusmods.com) — this creates the mod file.
-2. Note the `file_id` from the URL or mod manager.
-3. Add to your repository:
-   - **Secret** `NEXUSMODS_API_KEY` — your Nexus Mods API key (Settings → Secrets → Actions)
-   - **Variable** `NEXUSMODS_FILE_ID` — the file ID (Settings → Variables → Actions)
+`nexus-upload.yml` runs once `release.yml` completes, after approval in the `nexus` environment. It can also be run manually via **workflow_dispatch** with a version input. The one-time setup (environment, secrets, and variables) is in [docs/RELEASING.md](docs/RELEASING.md#nexus-mods-upload).
 
 ---
 
