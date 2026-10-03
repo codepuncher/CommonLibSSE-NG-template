@@ -192,12 +192,15 @@ The DLL lands in `build/msvc/ExampleMod.dll`.
 
 #### 5. Running tests
 
-Unit tests run as a native Windows executable via the `test-windows` preset:
+Unit tests build without CommonLibSSE, so they run as a native executable. Two presets are available:
+
+- **Linux** (`test-linux`) uses the system Catch2 3 package. Install it with `sudo pacman -S catch2` on Arch/CachyOS, or your distribution's equivalent.
+- **Windows** (`test-windows`) uses Catch2 from vcpkg.
 
 ```bash
-cmake --preset test-windows
-cmake --build --preset test-windows
-ctest --preset test-windows
+cmake --preset test-linux
+cmake --build --preset test-linux
+ctest --preset test-linux
 ```
 
 Tests live in `test/` and use [Catch2](https://github.com/catchorg/Catch2). Only pure-logic code (no RE::/SKSE:: APIs) can be tested this way. See `src/Utils.h` and `test/ExampleTests.cpp` for the pattern.
@@ -274,14 +277,14 @@ python3 scripts/generate-nexus-page.py --copy
 
 ### CI
 
-| Workflow           | Trigger                                                                                               | What it does                                                                               |
-| ------------------ | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| `setup.yml`        | First push in a repo created from this template                                                       | Renames placeholders using the repo name, then self-deletes                                |
-| `ci.yml`           | PRs to `main` touching `src/`, `test/`, `cmake/`, `vcpkg.json`, `CMakeLists.txt`, `CMakePresets.json` | `clang-format` (ubuntu) → `test` + `build` (windows, parallel) → `clang-tidy` (windows)    |
-| `release.yml`      | Push of a `v*` tag                                                                                    | Builds, packages via `scripts/package.sh`, publishes a GitHub Release with zip + PDB       |
-| `nexus-upload.yml` | Auto-triggered via `workflow_run` once `release.yml` completes, or manual `workflow_dispatch`         | Downloads release zip, generates cliff release notes, uploads to Nexus Mods                |
-| `lint.yml`         | PRs touching `scripts/`, `README.md`, or `docs/`                                                      | Runs shellcheck on shell scripts, plus dprint formatting and Vale prose checks on Markdown |
-| `pr-title.yml`     | PR opened/edited/reopened/synchronize                                                                 | Checks PR title follows Conventional Commits (`feat`, `fix`, `chore`, `refactor`)          |
+| Workflow           | Trigger                                                                                               | What it does                                                                                                      |
+| ------------------ | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `setup.yml`        | First push in a repo created from this template                                                       | Renames placeholders using the repo name, then self-deletes                                                       |
+| `ci.yml`           | PRs to `main` touching `src/`, `test/`, `cmake/`, `vcpkg.json`, `CMakeLists.txt`, `CMakePresets.json` | `clang-format` (ubuntu) → `test-linux` (ubuntu) and `test` + `build` (windows, parallel) → `clang-tidy` (windows) |
+| `release.yml`      | Push of a `v*` tag                                                                                    | Builds, packages via `scripts/package.sh`, publishes a GitHub Release with zip + PDB                              |
+| `nexus-upload.yml` | Auto-triggered via `workflow_run` once `release.yml` completes, or manual `workflow_dispatch`         | Downloads release zip, generates cliff release notes, uploads to Nexus Mods                                       |
+| `lint.yml`         | PRs touching `scripts/`, `README.md`, or `docs/`                                                      | Runs shellcheck on shell scripts, plus dprint formatting and Vale prose checks on Markdown                        |
+| `pr-title.yml`     | PR opened/edited/reopened/synchronize                                                                 | Checks PR title follows Conventional Commits (`feat`, `fix`, `chore`, `refactor`)                                 |
 
 #### Nexus Mods Upload
 

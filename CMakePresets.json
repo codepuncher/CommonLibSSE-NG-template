@@ -85,6 +85,17 @@
                 "PLUGIN_TESTS_ONLY": "ON",
                 "VCPKG_MANIFEST_FEATURES": "tests"
             }
+        },
+        {
+            "name": "test-linux",
+            "displayName": "Test (Linux, native)",
+            "description": "Build and run unit tests natively on Linux against the system Catch2",
+            "inherits": ["_ninja"],
+            "binaryDir": "${sourceDir}/build/test-linux",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "PLUGIN_TESTS_ONLY": "ON"
+            }
         }
     ],
     "buildPresets": [
@@ -108,6 +119,11 @@
             "name": "test-windows",
             "displayName": "Test (Windows)",
             "configurePreset": "test-windows"
+        },
+        {
+            "name": "test-linux",
+            "displayName": "Test (Linux)",
+            "configurePreset": "test-linux"
         }
     ],
     "testPresets": [
@@ -115,6 +131,14 @@
             "name": "test-windows",
             "displayName": "Test (Windows)",
             "configurePreset": "test-windows",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "test-linux",
+            "displayName": "Test (Linux)",
+            "configurePreset": "test-linux",
             "output": {
                 "outputOnFailure": true
             }

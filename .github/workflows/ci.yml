@@ -124,6 +124,39 @@ jobs:
       - name: Run Tests
         run: ctest --preset test-windows
 
+  test-linux:
+    needs: [changes, clang-format]
+    runs-on: ubuntu-latest
+
+    if: >-
+      always() &&
+      (needs.clang-format.result == 'success' || needs.clang-format.result == 'skipped') &&
+      (
+        github.event_name == 'workflow_dispatch' ||
+        needs.changes.outputs.src == 'true' ||
+        needs.changes.outputs.tests == 'true' ||
+        needs.changes.outputs.cmake == 'true' ||
+        needs.changes.outputs.ci == 'true'
+      )
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Install Catch2 and Ninja
+        run: sudo apt-get update && sudo apt-get install -y catch2 ninja-build
+
+      - name: Configure and Build Tests
+        run: |
+          cmake --preset test-linux
+          cmake --build --preset test-linux
+
+      - name: Run Tests
+        run: ctest --preset test-linux
+
   build:
     needs: [changes, clang-format]
     runs-on: windows-latest
