@@ -1,7 +1,7 @@
 # ExampleMod
 
 A starter template for Skyrim Special Edition / Anniversary Edition SKSE plugins using
-[CommonLibSSE-NG](https://github.com/alandtse/CommonLibVR/tree/ng), [CMake](https://cmake.org), and [vcpkg](https://vcpkg.io).
+[CommonLibSSE-NG](https://github.com/alandtse/CommonLibSSE-NG), [CMake](https://cmake.org), and [vcpkg](https://vcpkg.io).
 
 Supports building on **Linux** (cross-compilation via `clang-cl` + [xwin](https://github.com/Jake-Shadle/xwin)) and **Windows** (MSVC).
 

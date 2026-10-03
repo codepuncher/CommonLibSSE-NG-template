@@ -73,6 +73,6 @@ Describe what the mod does.
 [list]
 [*][url=https://skse.silverlock.org/]SKSE[/url] by the SKSE Team
 [*][url=https://www.nexusmods.com/skyrimspecialedition/mods/32444]Address Library for SKSE Plugins[/url] by [url=https://www.nexusmods.com/profile/meh321]meh321[/url]
-[*][url=https://github.com/alandtse/CommonLibVR/tree/ng]CommonLibSSE-NG[/url] by [url=https://github.com/alandtse]alandtse[/url] and contributors
+[*][url=https://github.com/alandtse/CommonLibSSE-NG]CommonLibSSE-NG[/url] by [url=https://github.com/alandtse]alandtse[/url] and contributors
 [/list]
 ```
