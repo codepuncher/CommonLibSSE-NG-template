@@ -7,8 +7,11 @@
 #include <string>
 #include <string_view>
 
-// Pure-logic helpers with no RE::/SKSE:: usage so they can be unit-tested by the
-// `test-windows` preset (which builds without CommonLibSSE). See test/ExampleTests.cpp.
+/**
+ * Pure-logic helpers with no RE::/SKSE:: usage, so the `test-linux` and
+ * `test-windows` presets can unit-test them without CommonLibSSE.
+ * See test/ExampleTests.cpp.
+ */
 namespace ExampleMod
 {
 
