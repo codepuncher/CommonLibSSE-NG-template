@@ -82,7 +82,7 @@ jobs:
           clang-format-version: '22'
           check-path: test
 
-  test:
+  test-windows:
     needs: [changes, clang-format]
     runs-on: windows-latest
 
@@ -157,7 +157,7 @@ jobs:
       - name: Run Tests
         run: ctest --preset test-linux
 
-  build:
+  build-windows:
     needs: [changes, clang-format]
     runs-on: windows-latest
 
@@ -201,15 +201,82 @@ jobs:
             build/msvc/*.dll
             build/msvc/*.pdb
 
+  build-linux:
+    needs: [changes, clang-format]
+    runs-on: ubuntu-latest
+
+    if: >-
+      always() &&
+      (needs.clang-format.result == 'success' || needs.clang-format.result == 'skipped') &&
+      (
+        github.event_name == 'workflow_dispatch' ||
+        needs.changes.outputs.src == 'true' ||
+        needs.changes.outputs.cmake == 'true' ||
+        needs.changes.outputs.ci == 'true'
+      )
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          submodules: recursive
+
+      - name: Install LLVM
+        uses: KyleMayes/install-llvm-action@ebc0426251bc40c7cd31162802432c68818ab8f0 # v2.0.9
+        with:
+          # The Windows STL requires Clang 19 or newer; Ubuntu's default Clang is too old.
+          version: "21"
+          directory: ${{ runner.temp }}/llvm
+
+      - name: Install Ninja
+        run: sudo apt-get update && sudo apt-get install -y ninja-build
+
+      - name: Restore xwin binary cache
+        id: xwin-cache
+        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        with:
+          path: ~/.cargo/bin/xwin
+          key: xwin-0.9.0
+
+      - name: Install xwin
+        if: steps.xwin-cache.outputs.cache-hit != 'true'
+        run: cargo install --locked --version 0.9.0 xwin
+
+      - name: Restore Windows SDK and CRT cache
+        id: xwin-splat-cache
+        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        with:
+          path: ~/.xwin
+          key: xwin-splat-0.9.0
+
+      - name: Fetch the Windows SDK and CRT
+        if: steps.xwin-splat-cache.outputs.cache-hit != 'true'
+        run: xwin --accept-license --temp splat --output "$HOME/.xwin"
+
+      - name: Restore vcpkg binary cache
+        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+        with:
+          path: ${{ runner.temp }}/vcpkg-cache
+          key: vcpkg-linux-${{ hashFiles('vcpkg.json', 'cmake/triplets/**', 'cmake/ports/**') }}
+          restore-keys: vcpkg-linux-
+
+      - name: Configure and Build
+        run: |
+          cmake --preset release-linux
+          cmake --build --preset release-linux
+        env:
+          VCPKG_BINARY_SOURCES: "clear;files,${{ runner.temp }}/vcpkg-cache,readwrite"
+
   clang-tidy:
-    needs: [changes, clang-format, build, test]
+    needs: [changes, clang-format]
     runs-on: windows-latest
 
     if: >-
       always() &&
       (needs.clang-format.result == 'success' || needs.clang-format.result == 'skipped') &&
-      (needs.build.result == 'success' || needs.build.result == 'skipped') &&
-      (needs.test.result == 'success' || needs.test.result == 'skipped') &&
       (
         github.event_name == 'workflow_dispatch' ||
         needs.changes.outputs.src == 'true' ||
