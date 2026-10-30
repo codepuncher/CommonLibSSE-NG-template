@@ -1,4 +1,4 @@
-# init.ps1 — run once after cloning this template to set up a new mod project.
+# init.ps1 -- run once after cloning this template to set up a new mod project.
 #
 # Usage: .\scripts\init.ps1 "AuthorName" "ModName"
 #   AuthorName  Your name (e.g. "YourName")
@@ -23,7 +23,7 @@ if (-not $AuthorName) {
     $AuthorName = Read-Host "Author name (e.g. YourName)"
 }
 if (-not $ModName) {
-    $ModName = Read-Host "Mod name — PascalCase (e.g. BetterJumping)"
+    $ModName = Read-Host "Mod name -- PascalCase (e.g. BetterJumping)"
 }
 
 $ModNameLower = $ModName.ToLower() -replace '_', '-'
@@ -74,7 +74,7 @@ if (Test-Path "lib\vcpkg\bootstrap-vcpkg.bat") {
         exit 1
     }
 } else {
-    Write-Error "lib\vcpkg\bootstrap-vcpkg.bat not found — did submodules init correctly?"
+    Write-Error "lib\vcpkg\bootstrap-vcpkg.bat not found -- did submodules init correctly?"
     exit 1
 }
 
@@ -84,8 +84,8 @@ if (-not (Test-Path ".env")) {
     Write-Host "Copied .env.example to .env"
     Write-Host ""
     Write-Host "Edit .env and set your Skyrim paths before building:"
-    Write-Host "  SKYRIM_MODS_FOLDER — path to your mod manager's staging folder"
-    Write-Host "  SKYRIM_FOLDER      — path to your Skyrim installation (fallback)"
+    Write-Host "  SKYRIM_MODS_FOLDER -- path to your mod manager's staging folder"
+    Write-Host "  SKYRIM_FOLDER      -- path to your Skyrim installation (fallback)"
 } else {
     Write-Host ".env already exists, skipping"
 }
